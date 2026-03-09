@@ -39,9 +39,9 @@ servo = AngularServo(
 current_angle = 90
 servo.angle = current_angle
 
-Kp = 0.06
-dead_zone = 80
-max_step = 5
+Kp = 0.03          # 0.06 → 0.03
+dead_zone = 120    # 80 → 120
+max_step = 3       # 5 → 3
 ANGLE_MIN = 10
 ANGLE_MAX = 170
 
@@ -133,7 +133,7 @@ try:
                 face_detect_count += 1
             else:
                 face_detect_count = 0
-                face_x_list = []  # ← 얼굴 없으면 즉시 초기화
+                face_x_list = []  # 얼굴 없으면 즉시 초기화
 
             if face_detect_count >= 8:
                 x, y, w, h = max(faces, key=lambda r: r[2]*r[3])
@@ -179,20 +179,23 @@ try:
                     # ===== SERVO TRACKING =====
                     face_x_list.append(face_center_x)
 
-                    if len(face_x_list) > 5:
+                    if len(face_x_list) > 10:        # 5 → 10
                         face_x_list.pop(0)
 
-                    smooth_x = sum(face_x_list) / len(face_x_list)
-                    error = center_x - smooth_x
+                    if len(face_x_list) >= 10:       # 버퍼 꽉 찼을 때만 움직임
+                        smooth_x = sum(face_x_list) / len(face_x_list)
+                        error = center_x - smooth_x
 
-                    if abs(error) > dead_zone:
-                        movement = clamp(error * Kp, -max_step, max_step)
-                        current_angle = clamp(current_angle + movement,
-                                            ANGLE_MIN, ANGLE_MAX)
-                        servo.angle = current_angle
+                        if abs(error) > dead_zone:
+                            movement = clamp(error * Kp, -max_step, max_step)
+                            new_angle = clamp(current_angle + movement, ANGLE_MIN, ANGLE_MAX)
+
+                            if abs(new_angle - current_angle) >= 1.0:  # 1도 미만 무시
+                                current_angle = new_angle
+                                servo.angle = current_angle
 
                 else:
-                    face_x_list = []  # ← 얼굴 크기 미달 시 초기화
+                    face_x_list = []  # 얼굴 크기 미달 시 초기화
 
         cv2.putText(frame, status_text, (20, 40),
                     cv2.FONT_HERSHEY_SIMPLEX, 1,
