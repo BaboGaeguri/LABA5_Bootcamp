@@ -7,7 +7,7 @@ const int IN1 = 8;   // Motor A direction control
 const int IN2 = 7;   // Motor A direction control
 
 // Motor B (Left Motor) pins - 수정된 핀 번호
-const int ENB = 3;   // PWM speed control for Motor B (변경: 3 → 4)
+const int ENB = 4;   // PWM speed control for Motor B (변경: 3 → 4)
 const int IN3 = 6;   // Motor B direction control (변경: 5 → 6)
 const int IN4 = 5;   // Motor B direction control (변경: 4 → 5)
 
