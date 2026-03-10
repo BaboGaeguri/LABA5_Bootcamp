@@ -67,28 +67,40 @@ void loop() {
 }
 
 void moveForward() {
-  digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW);  analogWrite(ENA, motorSpeed);
-  digitalWrite(IN3, LOW); digitalWrite(IN4, HIGH);  analogWrite(ENB, motorSpeed);
+  // 오른쪽 모터 정방향 (빨강→OUT1)
+  digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW);
+  analogWrite(ENA, motorSpeed);
+  // 왼쪽 모터 정방향 (빨강→OUT4, 반대로 꽂혀있으므로 IN3/IN4 반전)
+  digitalWrite(IN3, HIGH); digitalWrite(IN4, LOW);
+  analogWrite(ENB, motorSpeed);
 }
 
 void moveBackward() {
-  digitalWrite(IN1, LOW);  digitalWrite(IN2, HIGH); analogWrite(ENA, motorSpeed);
-  digitalWrite(IN3, HIGH);  digitalWrite(IN4, LOW); analogWrite(ENB, motorSpeed);
+  digitalWrite(IN1, LOW);  digitalWrite(IN2, HIGH);
+  analogWrite(ENA, motorSpeed);
+  digitalWrite(IN3, LOW);  digitalWrite(IN4, HIGH);
+  analogWrite(ENB, motorSpeed);
 }
 
 void turnLeft() {
   // 오른쪽 모터 전진, 왼쪽 모터 정지
-  digitalWrite(IN1, LOW);  digitalWrite(IN2, LOW); analogWrite(ENA, 0);
-  digitalWrite(IN3, LOW); digitalWrite(IN4, HIGH); analogWrite(ENB, motorSpeed);
+  digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW);
+  analogWrite(ENA, motorSpeed);
+  digitalWrite(IN3, LOW);  digitalWrite(IN4, LOW);
+  analogWrite(ENB, 0);
 }
 
 void turnRight() {
   // 왼쪽 모터 전진, 오른쪽 모터 정지
-  digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW); analogWrite(ENA, motorSpeed);
-  digitalWrite(IN3, LOW);  digitalWrite(IN4, LOW); analogWrite(ENB, 0);
+  digitalWrite(IN1, LOW);  digitalWrite(IN2, LOW);
+  analogWrite(ENA, 0);
+  digitalWrite(IN3, HIGH); digitalWrite(IN4, LOW);
+  analogWrite(ENB, motorSpeed);
 }
 
 void stopMotors() {
-  digitalWrite(IN1, LOW); digitalWrite(IN2, LOW); analogWrite(ENA, 0);
-  digitalWrite(IN3, LOW); digitalWrite(IN4, LOW); analogWrite(ENB, 0);
+  digitalWrite(IN1, LOW); digitalWrite(IN2, LOW);
+  analogWrite(ENA, 0);
+  digitalWrite(IN3, LOW); digitalWrite(IN4, LOW);
+  analogWrite(ENB, 0);
 }
