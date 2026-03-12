@@ -1,12 +1,11 @@
-// ===== 미션 2-6: PID 라인 트레이싱 =====
-
 // =========================
-// 센서 핀 (디지털)
+// 센서 핀
 // =========================
-const int S1 = 2;   // 왼쪽 끝   (가중치 -3)
-const int S2 = 3;   // 왼쪽 중간 (가중치 -1)
-const int S3 = 4;   // 오른쪽 중간 (가중치 +1)
-const int S4 = 5;   // 오른쪽 끝  (가중치 +3)
+const int S1 = A4;
+const int S2 = A3;
+const int S3 = A2;
+const int S4 = A1;
+const int S5 = A0;
 
 // =========================
 // 오른쪽 모터
@@ -23,18 +22,21 @@ const int IN3 = 8;
 const int IN4 = 7;
 
 // =========================
+// 설정
+// =========================
+int BASE_SPEED = 170;
+int threshold  = 500;
+
+// =========================
 // PID 파라미터 (튜닝 핵심!)
 // 튜닝 순서: Kp → Kd → Ki
 // =========================
-float Kp = 60.0;   // 1단계: 30~100 범위에서 조절
-float Ki = 0.0;    // 3단계: 마지막에 0.5~3.0으로 조절
+float Kp = 25.0;   // 1단계: 30~100 범위에서 조절
+float Ki =  0.0;   // 3단계: 마지막에 0.5~3.0으로 조절
 float Kd = 15.0;   // 2단계: 10~30 범위에서 조절
 
-int BASE_SPEED = 180;   // 기본 속도 (0~255)
-
-// 가중치: 센서 4개 → [-3, -1, +1, +3]
-// 홀수 간격으로 설정해야 중앙(0) 표현 가능
-const float WEIGHTS[4] = {-3.0, -1.0, 1.0, 3.0};
+// 가중치: 센서 5개 → [-4, -2, 0, +2, +4]
+const float WEIGHTS[5] = {-4.0, -2.0, 0.0, 2.0, 4.0};
 
 // =========================
 // PID 내부 변수
@@ -47,12 +49,8 @@ float last_error = 0.0;   // 라인 잃었을 때 방향 기억
 // SETUP
 // =========================
 void setup() {
-  Serial.begin(9600);
 
-  pinMode(S1, INPUT);
-  pinMode(S2, INPUT);
-  pinMode(S3, INPUT);
-  pinMode(S4, INPUT);
+  Serial.begin(9600);
 
   pinMode(ENA, OUTPUT);
   pinMode(IN1, OUTPUT);
@@ -76,18 +74,32 @@ void setup() {
 void loop() {
 
   // ── 1. 센서 읽기 ──
-  // 검은선 위 = 0, 흰 바닥 = 1 (디지털 IR 센서 기준)
-  // 내 센서가 반대라면 s[] 값에 ! 붙이기: s[i] = !digitalRead(...)
-  int s[4];
-  s[0] = !digitalRead(S1);   // 1 = 검은선 감지
-  s[1] = !digitalRead(S2);
-  s[2] = !digitalRead(S3);
-  s[3] = !digitalRead(S4);
+  int v1 = analogRead(S1);
+  int v2 = analogRead(S2);
+  int v3 = analogRead(S3);
+  int v4 = analogRead(S4);
+  int v5 = analogRead(S5);
+
+  // threshold 미만 = 검은선 감지 (1)
+  int s[5];
+  s[0] = (v1 < threshold) ? 1 : 0;
+  s[1] = (v2 < threshold) ? 1 : 0;
+  s[2] = (v3 < threshold) ? 1 : 0;
+  s[3] = (v4 < threshold) ? 1 : 0;
+  s[4] = (v5 < threshold) ? 1 : 0;
+
+  // 센서 출력
+  Serial.print("[");
+  Serial.print(v1); Serial.print(", ");
+  Serial.print(v2); Serial.print(", ");
+  Serial.print(v3); Serial.print(", ");
+  Serial.print(v4); Serial.print(", ");
+  Serial.print(v5); Serial.print("] → ");
 
   // ── 2. 전체 감지 → 정지 (교차로 or 종료선) ──
-  if (s[0] && s[1] && s[2] && s[3]) {
-    stopMotors();
-    Serial.println("[1 1 1 1] 정지");
+  if (s[0] && s[1] && s[2] && s[3] && s[4]) {
+    setMotor(BASE_SPEED, BASE_SPEED);  // 그냥 직진으로 통과
+    delay(200);                         // 200ms 동안 밀고 나가기
     return;
   }
 
@@ -95,7 +107,7 @@ void loop() {
   float weighted_sum = 0.0;
   int   active_count = 0;
 
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < 5; i++) {
     if (s[i] == 1) {
       weighted_sum += WEIGHTS[i];
       active_count++;
@@ -105,20 +117,20 @@ void loop() {
   // ── 4. 라인 잃어버린 경우 ──
   if (active_count == 0) {
     if (last_error < 0) {
-      // 라인이 왼쪽에 있었음 → 왼쪽으로 천천히 탐색
-      setMotor(60, BASE_SPEED);
+      // 라인이 왼쪽에 있었음 → 왼쪽으로 탐색
+      turnLeft();
     } else {
-      // 라인이 오른쪽에 있었음 → 오른쪽으로 천천히 탐색
-      setMotor(BASE_SPEED, 60);
+      // 라인이 오른쪽에 있었음 → 오른쪽으로 탐색
+      turnRight();
     }
-    Serial.println("[0 0 0 0] 탐색 중...");
+    Serial.println("[0 0 0 0 0] 탐색 중...");
     delay(20);
     return;
   }
 
   // ── 5. 오차값 계산 ──
   float error = weighted_sum / active_count;
-  // -3.0(완전 왼쪽) ~ 0.0(중앙) ~ +3.0(완전 오른쪽)
+  // -4.0(완전 왼쪽) ~ 0.0(중앙) ~ +4.0(완전 오른쪽)
 
   last_error = error;
 
@@ -151,11 +163,6 @@ void loop() {
   setMotor(left_speed, right_speed);
 
   // ── 9. 디버그 출력 ──
-  Serial.print("[");
-  Serial.print(s[0]); Serial.print(" ");
-  Serial.print(s[1]); Serial.print(" ");
-  Serial.print(s[2]); Serial.print(" ");
-  Serial.print(s[3]); Serial.print("] ");
   Serial.print("err:"); Serial.print(error, 1);
   Serial.print(" cor:"); Serial.print(correction, 1);
   Serial.print(" L:"); Serial.print(left_speed);
@@ -168,43 +175,48 @@ void loop() {
 // 모터 함수
 // =========================
 
-// PID 핵심 함수: 좌우 속도를 각각 지정
 void setMotor(int left_speed, int right_speed) {
-
-  // 왼쪽 모터 (ENB)
-  digitalWrite(IN3, LOW);
-  digitalWrite(IN4, HIGH);
-  analogWrite(ENB, left_speed);
 
   // 오른쪽 모터 (ENA)
   digitalWrite(IN1, HIGH);
   digitalWrite(IN2, LOW);
   analogWrite(ENA, right_speed);
+
+  // 왼쪽 모터 (ENB)
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+  analogWrite(ENB, left_speed);
+}
+
+void turnLeft() {
+
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  analogWrite(ENA, BASE_SPEED);
+
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, LOW);
+  analogWrite(ENB, 0);
+}
+
+void turnRight() {
+
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+  analogWrite(ENA, 0);
+
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+  analogWrite(ENB, BASE_SPEED);
 }
 
 void stopMotors() {
-  digitalWrite(IN1, LOW); digitalWrite(IN2, LOW); analogWrite(ENA, 0);
-  digitalWrite(IN3, LOW); digitalWrite(IN4, LOW); analogWrite(ENB, 0);
+
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+  analogWrite(ENA, 0);
+
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, LOW);
+  analogWrite(ENB, 0);
 }
-```
-
----
-
-## 센서 논리 확인 먼저!
-
-업로드 전에 Serial 모니터로 꼭 확인하세요.
-```
-검은선 위에 올렸을 때 → s[] 값이 1이 나와야 정상
-흰 바닥에서          → s[] 값이 0이 나와야 정상
-
-반대로 나오면 코드 윗부분 수정:
-s[0] = !digitalRead(S1);  →  s[0] = digitalRead(S1);  // ! 제거
-```
-
----
-
-## 튜닝 시작값
-```
-1단계: Kp=60, Ki=0,   Kd=0   → 흔들리면 Kp 줄이기
-2단계: Kp=60, Ki=0,   Kd=15  → 흔들림 완화 확인
-3단계: Kp=60, Ki=1.0, Kd=15  → 직선 편향 잡기
