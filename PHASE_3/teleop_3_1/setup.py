@@ -24,6 +24,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
+            'teleop_keyboard = teleop_3_1.teleop_keyboard:main',
         ],
     },
 )
