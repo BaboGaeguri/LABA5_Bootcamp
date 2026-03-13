@@ -2,6 +2,19 @@
 
   <!-- BASE -->
   <link name="base_link">
+
+    <inertial>
+      <origin xyz="0 0 0"/>
+      <mass value="3.0"/>
+      <inertia
+        ixx="0.02"
+        ixy="0.0"
+        ixz="0.0"
+        iyy="0.02"
+        iyz="0.0"
+        izz="0.03"/>
+    </inertial> 
+
     <visual>
       <geometry>
         <box size="0.3 0.2 0.1"/>
@@ -18,6 +31,19 @@
 
   <!-- LEFT WHEEL -->
   <link name="left_wheel">
+
+    <inertial>
+      <origin xyz="0 0 0"/>
+      <mass value="0.3"/>
+      <inertia
+        ixx="0.0005"
+        ixy="0.0"
+        ixz="0.0"
+        iyy="0.0005"
+        iyz="0.0"
+        izz="0.0005"/>
+    </inertial> 
+
     <visual>
       <origin rpy="1.5707 0 0"/>
       <geometry>
@@ -26,8 +52,8 @@
     </visual>
 
     <collision>
+      <origin rpy="1.5707 0 0"/>
       <geometry>
-        <origin rpy="1.5707 0 0"/>
         <cylinder radius="0.05" length="0.02"/>
       </geometry>
     </collision>
@@ -36,6 +62,19 @@
 
   <!-- RIGHT WHEEL -->
   <link name="right_wheel">
+    
+    <inertial>
+      <origin xyz="0 0 0"/>
+      <mass value="0.3"/>
+      <inertia
+        ixx="0.0005"
+        ixy="0.0"
+        ixz="0.0"
+        iyy="0.0005"
+        iyz="0.0"
+        izz="0.0005"/>
+    </inertial> 
+
     <visual>
       <origin rpy="1.5707 0 0"/>
       <geometry>
@@ -54,6 +93,19 @@
 
   <!-- CASTER -->
   <link name="caster_wheel">
+    
+    <inertial>
+      <origin xyz="0 0 0"/>
+      <mass value="0.1"/>
+      <inertia
+        ixx="0.0002"
+        ixy="0.0"
+        ixz="0.0"
+        iyy="0.0002"
+        iyz="0.0"
+        izz="0.0002"/>
+    </inertial> 
+
     <visual>
       <geometry>
         <sphere radius="0.03"/>
@@ -92,5 +144,22 @@
     <child link="caster_wheel"/>
     <origin xyz="-0.1 0 -0.05"/>
   </joint>
+
+  <gazebo>
+    <plugin name="diff_drive" filename="libgazebo_ros_diff_drive.so">
+
+      <left_joint>left_wheel_joint</left_joint>
+      <right_joint>right_wheel_joint</right_joint>
+
+      <wheel_separation>0.2</wheel_separation>
+      <wheel_radius>0.05</wheel_radius>
+
+      <command_topic>cmd_vel</command_topic>
+      <odometry_topic>odom</odometry_topic>
+
+      <frame_name>base_link</frame_name>
+
+    </plugin>
+  </gazebo>
 
 </robot>
