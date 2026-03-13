@@ -146,7 +146,7 @@
   </joint>
 
   <gazebo>
-    <plugin filename="gz-sim-diff-drive-system"
+    <plugin filename="libgz-sim8-diff-drive-system.so"
             name="gz::sim::systems::DiffDrive">
 
       <left_joint>left_wheel_joint</left_joint>
