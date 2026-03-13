@@ -7,8 +7,25 @@ __pycache__/
 *.pyo
 
 .vscode/
-<<<<<<< HEAD
-=======
 .vscode-server/
-.vscode-server/
->>>>>>> 2664b9e (내 코드 추가)
+
+# WSL/Linux home directory files (should not be tracked)
+.bash_history
+.bash_logout
+.bashrc
+.bashrc.save
+.bashrc.save.1
+.profile
+.gitconfig
+.viminfo
+.wget-hsts
+.motd_shown
+.sudo_as_admin_successful
+
+# System cache and config directories
+.cache/
+.config/
+.gz/
+.local/
+.rviz2/
+.sdformat/
