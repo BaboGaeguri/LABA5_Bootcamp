@@ -7,3 +7,8 @@ __pycache__/
 *.pyo
 
 .vscode/
+<<<<<<< HEAD
+=======
+.vscode-server/
+.vscode-server/
+>>>>>>> 2664b9e (내 코드 추가)

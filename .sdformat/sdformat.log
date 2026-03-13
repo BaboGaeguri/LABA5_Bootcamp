@@ -1,0 +1,77 @@
+Dbg [parser_urdf.cc:1558] extension [<plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
+    <left_joint>left_wheel_joint</left_joint>
+    <right_joint>right_wheel_joint</right_joint>
+    <wheel_separation>0.35</wheel_separation>
+    <wheel_radius>0.1</wheel_radius>
+    <topic>cmd_vel</topic>
+    <odom_topic>odom</odom_topic>
+    <tf_topic>tf</tf_topic>
+    <frame_id>odom</frame_id>
+    <child_frame_id>base_link</child_frame_id>
+</plugin>
+] not converted from URDF, probably already in SDF format.
+Dbg [parser_urdf.cc:427] Fixed Joint Reduction: extension lumping from [caster_wheel] to [base_link]
+Dbg [parser_urdf.cc:2575]   STRING REPLACE: instances of _link name [caster_wheel] with [base_link]
+Dbg [parser_urdf.cc:2582]         INITIAL STRING link [caster_wheel]-->[base_link]: [<plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
+    <left_joint>left_wheel_joint</left_joint>
+    <right_joint>right_wheel_joint</right_joint>
+    <wheel_separation>0.35</wheel_separation>
+    <wheel_radius>0.1</wheel_radius>
+    <topic>cmd_vel</topic>
+    <odom_topic>odom</odom_topic>
+    <tf_topic>tf</tf_topic>
+    <frame_id>odom</frame_id>
+    <child_frame_id>base_link</child_frame_id>
+</plugin>
+]
+Dbg [parser_urdf.cc:2575]   STRING REPLACE: instances of _link name [caster_wheel] with [base_link]
+Dbg [parser_urdf.cc:2582]         INITIAL STRING link [caster_wheel]-->[base_link]: [<frame name="caster_joint" attached_to="base_link">
+    <pose>-0.15 0 -0.1 0 0 0</pose>
+</frame>
+]
+Dbg [parser_urdf.cc:2582]         INITIAL STRING link [caster_wheel]-->[base_link]: [<frame name="caster_wheel" attached_to="caster_joint">
+    <pose>0 0 0 0 0 0</pose>
+</frame>
+]
+Dbg [parser_urdf.cc:759] LINK NAME: [parent: base_link] from dMass
+Dbg [parser_urdf.cc:760]      MASS: [5]
+Dbg [parser_urdf.cc:761]        CG: [0, 0, 0]
+Dbg [parser_urdf.cc:763]         I: [0.045, 0, 0]
+Dbg [parser_urdf.cc:765]            [0, 0.077, 0]
+Dbg [parser_urdf.cc:767]            [0, 0, 0.104]
+Dbg [parser_urdf.cc:759] LINK NAME: [link : caster_wheel] from dMass
+Dbg [parser_urdf.cc:760]      MASS: [0.2]
+Dbg [parser_urdf.cc:761]        CG: [0, 0, 0]
+Dbg [parser_urdf.cc:763]         I: [0.0002, 0, 0]
+Dbg [parser_urdf.cc:765]            [0, 0.0002, 0]
+Dbg [parser_urdf.cc:767]            [0, 0, 0.0002]
+Dbg [parser_urdf.cc:759] LINK NAME: [link in parent link: caster_wheel] from dMass
+Dbg [parser_urdf.cc:760]      MASS: [0.2]
+Dbg [parser_urdf.cc:761]        CG: [-0.15, 0, -0.1]
+Dbg [parser_urdf.cc:763]         I: [0.0022, 0, -0.003]
+Dbg [parser_urdf.cc:765]            [0, 0.0067, 0]
+Dbg [parser_urdf.cc:767]            [-0.003, 0, 0.0047]
+Dbg [parser_urdf.cc:759] LINK NAME: [combined: base_link] from dMass
+Dbg [parser_urdf.cc:760]      MASS: [5.2]
+Dbg [parser_urdf.cc:761]        CG: [-0.00576923, 0, -0.00384615]
+Dbg [parser_urdf.cc:763]         I: [0.0472, 0, -0.003]
+Dbg [parser_urdf.cc:765]            [0, 0.0837, 0]
+Dbg [parser_urdf.cc:767]            [-0.003, 0, 0.1087]
+Dbg [parser_urdf.cc:775] LINK NAME: [base_link] from dMass
+Dbg [parser_urdf.cc:776]      MASS: [5.2]
+Dbg [parser_urdf.cc:777]        CG: [-0.00576923, 0, -0.00384615]
+Dbg [parser_urdf.cc:780]         I: [0.0471231, 0, -0.00288462]
+Dbg [parser_urdf.cc:783]            [0, 0.08345, 0]
+Dbg [parser_urdf.cc:786]            [-0.00288462, 0, 0.108527]
+Dbg [parser_urdf.cc:986] lumping visual [] for link [caster_wheel] to parent [base_link] with name [caster_wheel]
+Dbg [parser_urdf.cc:1045] lumping collision [] for link [caster_wheel] to parent [base_link] with name [caster_wheel]
+Dbg [parser_urdf.cc:2851] [base_link] has no parent joint
+Dbg [parser_urdf.cc:2895] creating collision for link [base_link] collision []
+Dbg [parser_urdf.cc:2895] creating collision for link [base_link] collision [caster_wheel]
+Dbg [parser_urdf.cc:2940] creating visual for link [base_link] visual []
+Dbg [parser_urdf.cc:2940] creating visual for link [base_link] visual [caster_wheel]
+Dbg [parser_urdf.cc:2895] creating collision for link [left_wheel] collision []
+Dbg [parser_urdf.cc:2940] creating visual for link [left_wheel] visual []
+Dbg [parser_urdf.cc:2895] creating collision for link [right_wheel] collision []
+Dbg [parser_urdf.cc:2940] creating visual for link [right_wheel] visual []
+Dbg [parser.cc:963] Converting URDF to SDFormat and parsing it.
