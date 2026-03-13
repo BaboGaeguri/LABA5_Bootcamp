@@ -17,13 +17,19 @@ def generate_launch_description():
 
     return LaunchDescription([
 
-        # Gazebo 실행
+        # Gazebo world 실행
         ExecuteProcess(
             cmd=['gz', 'sim', world],
             output='screen'
         ),
 
-        # ROS2 -> Gazebo cmd_vel bridge
+        # 로봇 spawn
+        ExecuteProcess(
+            cmd=['gz', 'sim', '-v', '4', '--spawn-file', robot],
+            output='screen'
+        ),
+
+        # ROS2 → Gazebo bridge
         Node(
             package='ros_gz_bridge',
             executable='parameter_bridge',
@@ -33,7 +39,7 @@ def generate_launch_description():
             output='screen'
         ),
 
-        # keyboard teleop
+        # 키보드 제어
         Node(
             package='robot_control',
             executable='keyboard_cmd_vel',
