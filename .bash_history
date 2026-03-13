@@ -187,3 +187,32 @@ git push -u origin main
 git remote add origin https://github.com/BaboGaeguri/LABA5_Bootcamp.git
 git push -u origin main
 git pull origin main --rebase
+git remote add origin https://github.com/BaboGaeguri/LABA5_Bootcamp.git
+git pull origin main --allow-unrelated-histories
+git config pull.rebase false
+git pull origin main --allow-unrelated-histories
+git push origin main
+git rm --cached .vscode-server/bin/ce099c1ed25d9eb3076c11e4a280f3eb52b4fbeb/node
+echo ".vscode-server/" >> .gitignore
+git add .
+git commit -m "용량 초과 파일 제거 및 ignore 추가"
+git push origin main
+rm -rf .git
+git init
+git remote add origin https://github.com/BaboGaeguri/LABA5_Bootcamp.git
+git pull origin main
+echo ".vscode-server/" >> .gitignore
+git add .
+git commit -m "내 코드 추가"
+git push origin main
+git branch -M main
+git push origin main
+git pull origin main --rebase
+git add .
+git commit -m "내 코드 추가"
+git push origin main
+git pull origin main --allow-unrelated-histories
+git add .
+git commit -m "내 코드 최종 추가"
+git rebase --continue
+git rebase --abort
