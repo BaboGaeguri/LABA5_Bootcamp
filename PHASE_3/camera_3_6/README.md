@@ -24,7 +24,7 @@ camera_3_6/
 └── README.md
 ```
 
-3-5와의 차이: URDF에 `camera_link`, `camera_joint`, Gazebo 카메라 센서 플러그인이 추가됨.
+3-5와의 차이: URDF에 `camera_link`, `camera_joint`, Gazebo 카메라 센서 플러그인, `caster_wheel_front`(앞 보조 바퀴)가 추가됨.
 
 ---
 
@@ -90,7 +90,48 @@ pkill -9 gzserver; pkill -9 gzclient; pkill -9 gazebo
 
 ## 핵심 파일 설명
 
-### urdf/wheeled_robot.urdf — 추가된 카메라 설정
+### urdf/wheeled_robot.urdf — 추가된 설정
+
+#### 앞 보조 바퀴 (caster_wheel_front) 추가
+
+기존 캐스터(`caster_wheel`)는 뒤쪽(`x=-0.1`)에만 있어서 전진/후진 시 로봇이 불안정하게 꿀렁거렸음.
+앞쪽에도 캐스터를 추가하여 4점 지지 구조로 안정성 향상.
+
+```xml
+<link name="caster_wheel_front">
+  <visual>
+    <geometry><sphere radius="0.025"/></geometry>
+    <material name="gray"/>
+  </visual>
+  <collision>
+    <geometry><sphere radius="0.025"/></geometry>
+  </collision>
+  <inertial>
+    <mass value="0.05"/>
+    <inertia ixx="0.0000125" ixy="0" ixz="0"
+                             iyy="0.0000125" iyz="0"
+                                             izz="0.0000125"/>
+  </inertial>
+</link>
+
+<joint name="caster_joint_front" type="fixed">
+  <parent link="base_link"/>
+  <child link="caster_wheel_front"/>
+  <origin xyz="0.1 0 -0.075" rpy="0 0 0"/>  <!-- 앞쪽 x=+0.1 -->
+</joint>
+
+<gazebo reference="caster_wheel_front">
+  <mu1>0.0</mu1>   <!-- 마찰 제거: 자유롭게 미끄러지도록 -->
+  <mu2>0.0</mu2>
+</gazebo>
+```
+
+| 캐스터 | 위치 | 역할 |
+|---|---|---|
+| `caster_wheel` | x=-0.1 (뒤) | 후진 안정 |
+| `caster_wheel_front` | x=+0.1 (앞) | 전진 안정 |
+
+#### 추가된 카메라 설정
 
 ```xml
 <!-- 카메라 link: 로봇 전방에 올라가는 작은 상자 형태의 센서 -->
