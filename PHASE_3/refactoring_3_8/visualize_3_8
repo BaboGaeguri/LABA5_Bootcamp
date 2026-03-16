@@ -1,0 +1,111 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:148.0) Gecko/20100101 Firefox/148.0" version="29.6.1">
+  <diagram name="Page-1" id="48l7fhR9loyu9wDDedAF">
+    <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="M-Ld8qFuw90BpA8m4ZqE-1" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="시각화 도구" vertex="1">
+          <mxGeometry height="128" width="1710" x="31" y="928" as="geometry" />
+        </mxCell>
+        <mxCell id="M-Ld8qFuw90BpA8m4ZqE-2" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="ROS2 노드" vertex="1">
+          <mxGeometry height="128" width="971" x="20" y="221" as="geometry" />
+        </mxCell>
+        <mxCell id="M-Ld8qFuw90BpA8m4ZqE-3" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Gazebo 시뮬레이션" vertex="1">
+          <mxGeometry height="786" width="646" x="1011" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="M-Ld8qFuw90BpA8m4ZqE-4" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="라이다 플러그인&#xa;libgazebo_ros_ray_sensor.so" vertex="1">
+          <mxGeometry height="78" width="282" x="1339" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="M-Ld8qFuw90BpA8m4ZqE-5" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="카메라 플러그인&#xa;libgazebo_ros_camera.so" vertex="1">
+          <mxGeometry height="78" width="260" x="1136" y="703" as="geometry" />
+        </mxCell>
+        <mxCell id="M-Ld8qFuw90BpA8m4ZqE-6" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="diff_drive 플러그인&#xa;libgazebo_ros_diff_drive.so" vertex="1">
+          <mxGeometry height="78" width="268" x="1132" y="447" as="geometry" />
+        </mxCell>
+        <mxCell id="M-Ld8qFuw90BpA8m4ZqE-7" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="물리 엔진&#xa;(로봇 이동 처리)" vertex="1">
+          <mxGeometry height="54" width="245" x="1144" y="599" as="geometry" />
+        </mxCell>
+        <mxCell id="M-Ld8qFuw90BpA8m4ZqE-8" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="robot_state_publisher&#xa;(URDF → TF 발행)" vertex="1">
+          <mxGeometry height="78" width="281" x="55" y="246" as="geometry" />
+        </mxCell>
+        <mxCell id="M-Ld8qFuw90BpA8m4ZqE-9" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="obstacle_avoidance&#xa;(장애물 회피 판단)" vertex="1">
+          <mxGeometry height="78" width="260" x="386" y="246" as="geometry" />
+        </mxCell>
+        <mxCell id="M-Ld8qFuw90BpA8m4ZqE-10" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="teleop_twist_keyboard&#xa;(수동 조종, 선택)" vertex="1">
+          <mxGeometry height="78" width="260" x="696" y="246" as="geometry" />
+        </mxCell>
+        <mxCell id="M-Ld8qFuw90BpA8m4ZqE-11" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="RViz2&#xa;(LaserScan / TF 시각화)" vertex="1">
+          <mxGeometry height="78" width="260" x="151" y="953" as="geometry" />
+        </mxCell>
+        <mxCell id="M-Ld8qFuw90BpA8m4ZqE-12" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="rqt_image_view&#xa;(카메라 영상)" vertex="1">
+          <mxGeometry height="78" width="260" x="1136" y="953" as="geometry" />
+        </mxCell>
+        <mxCell id="M-Ld8qFuw90BpA8m4ZqE-13" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="rqt_graph&#xa;(노드-토픽 구조 시각화)" vertex="1">
+          <mxGeometry height="78" width="260" x="1446" y="953" as="geometry" />
+        </mxCell>
+        <mxCell id="M-Ld8qFuw90BpA8m4ZqE-14" edge="1" parent="1" source="M-Ld8qFuw90BpA8m4ZqE-4" style="curved=1;startArrow=none;endArrow=block;exitX=0.16;exitY=1;entryX=1;entryY=0.36;rounded=0;" target="M-Ld8qFuw90BpA8m4ZqE-9" value="/scan&#xa;sensor_msgs/LaserScan">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1266" y="172" />
+              <mxPoint x="1266" y="221" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="M-Ld8qFuw90BpA8m4ZqE-15" edge="1" parent="1" source="M-Ld8qFuw90BpA8m4ZqE-4" style="curved=1;startArrow=none;endArrow=block;exitX=0.56;exitY=1;entryX=1;entryY=0.41;rounded=0;" target="M-Ld8qFuw90BpA8m4ZqE-11" value="/scan">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1520" y="172" />
+              <mxPoint x="1520" y="928" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="M-Ld8qFuw90BpA8m4ZqE-16" edge="1" parent="1" source="M-Ld8qFuw90BpA8m4ZqE-5" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;" target="M-Ld8qFuw90BpA8m4ZqE-12" value="/camera_sensor/image_raw&#xa;sensor_msgs/Image">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="M-Ld8qFuw90BpA8m4ZqE-17" edge="1" parent="1" source="M-Ld8qFuw90BpA8m4ZqE-8" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=0.3;entryY=0;rounded=0;" target="M-Ld8qFuw90BpA8m4ZqE-11" value="/tf&#xa;/robot_description">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="196" y="928" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="M-Ld8qFuw90BpA8m4ZqE-18" edge="1" parent="1" source="M-Ld8qFuw90BpA8m4ZqE-9" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=0.32;entryY=0;rounded=0;" target="M-Ld8qFuw90BpA8m4ZqE-6" value="/cmd_vel&#xa;geometry_msgs/Twist">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="516" y="349" />
+              <mxPoint x="1156" y="398" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="M-Ld8qFuw90BpA8m4ZqE-19" edge="1" parent="1" source="M-Ld8qFuw90BpA8m4ZqE-10" style="curved=1;dashed=1;dashPattern=2 3;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=0.68;entryY=0;rounded=0;" target="M-Ld8qFuw90BpA8m4ZqE-6" value="/cmd_vel&#xa;(동시 실행 시 충돌 주의)">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="826" y="349" />
+              <mxPoint x="1376" y="398" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="M-Ld8qFuw90BpA8m4ZqE-20" edge="1" parent="1" source="M-Ld8qFuw90BpA8m4ZqE-6" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;" target="M-Ld8qFuw90BpA8m4ZqE-7" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="M-Ld8qFuw90BpA8m4ZqE-21" edge="1" parent="1" source="M-Ld8qFuw90BpA8m4ZqE-7" style="curved=1;startArrow=none;endArrow=block;exitX=1;exitY=0.01;entryX=0.62;entryY=1;rounded=0;" target="M-Ld8qFuw90BpA8m4ZqE-4" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1560" y="562" />
+              <mxPoint x="1560" y="172" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="M-Ld8qFuw90BpA8m4ZqE-22" edge="1" parent="1" source="M-Ld8qFuw90BpA8m4ZqE-7" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;" target="M-Ld8qFuw90BpA8m4ZqE-5" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

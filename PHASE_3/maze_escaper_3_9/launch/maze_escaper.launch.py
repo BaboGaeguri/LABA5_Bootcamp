@@ -9,10 +9,10 @@ from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
 
-    pkg_path = get_package_share_directory('gazebo_3_4')
+    pkg_path = get_package_share_directory('maze_escaper_3_9')
 
     urdf_file = os.path.join(pkg_path, 'urdf', 'wheeled_robot.urdf')
-    world_file = os.path.join(pkg_path, 'worlds', 'maze.world')
+    world_file = os.path.join(pkg_path, 'worlds', 'escape_maze.world')
 
     robot_description = ParameterValue(
         Command(['cat ', urdf_file]),
@@ -21,7 +21,7 @@ def generate_launch_description():
 
     return LaunchDescription([
 
-        # 1. maze.world 로드하여 Gazebo 실행
+        # 1. Gazebo + escape_maze.world
         ExecuteProcess(
             cmd=['gazebo', '--verbose', '-s', 'libgazebo_ros_factory.so', world_file],
             output='screen'
@@ -35,15 +35,36 @@ def generate_launch_description():
             output='screen'
         ),
 
-        # 3. 로봇 소환 (출발점 x=-2, y=-2)
+        # 3. 로봇 소환 (미로 입구 x=-3, y=-3)
         Node(
             package='gazebo_ros',
             executable='spawn_entity.py',
             arguments=[
                 '-topic', 'robot_description',
                 '-entity', 'wheeled_robot',
-                '-x', '-2', '-y', '-2', '-z', '0.1'
+                '-x', '-8.75', '-y', '11.0', '-z', '0.1'
             ],
+            output='screen'
+        ),
+
+        # 4. 벽 감지 노드
+        Node(
+            package='maze_escaper_3_9',
+            executable='wall_detector',
+            output='screen'
+        ),
+
+        # 5. 색상 감지 노드
+        Node(
+            package='maze_escaper_3_9',
+            executable='color_detector',
+            output='screen'
+        ),
+
+        # 6. 미로 탈출 노드
+        Node(
+            package='maze_escaper_3_9',
+            executable='maze_escaper',
             output='screen'
         ),
 
