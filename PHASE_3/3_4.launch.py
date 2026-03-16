@@ -7,7 +7,7 @@ import os
 def generate_launch_description():
 
     world = os.path.expanduser(
-        "~/ros2_ws/src/robot_control/world/simple_world.sdf"
+        "~/ros2_ws/src/robot_control/world/maze_world.sdf"
     )
 
     robot = os.path.expanduser(
