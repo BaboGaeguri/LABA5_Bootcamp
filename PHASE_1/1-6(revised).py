@@ -111,7 +111,7 @@ def clamp(value, min_value, max_value):
 # 기본값 1.0 = 보정 없음
 COLOR_RED_SCALE = 1.0
 COLOR_GREEN_SCALE = 1.0
-COLOR_BLUE_SCALE = 1.0   # 파란 치우침이면 0.7~0.85 정도로 낮춰라
+COLOR_BLUE_SCALE = 0.75  # 파란 치우침 보정 (0.7~0.85 범위에서 조정)
 
 
 def apply_color_correction(rgb_frame):
@@ -254,7 +254,7 @@ def camera_thread():
     colour_gains = metadata.get("ColourGains", (2.0, 1.5))  # (red_gain, blue_gain)
     # blue_gain을 낮추거나 red_gain을 높여서 파란 치우침 보정
     # 기본값보다 파란 화면이면 blue_gain을 줄여라 (예: 1.2~1.5)
-    picam2.set_controls({"ColourGains": (colour_gains[0], colour_gains[1])})
+    picam2.set_controls({"ColourGains": (2.2, 1.2)})  # red_gain 높이고 blue_gain 낮춰서 파란 치우침 보정
 
     prev_gray_blur = None
     current_mode = "standby"
