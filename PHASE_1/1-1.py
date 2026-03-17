@@ -9,7 +9,8 @@ picam2.start()
 
 time.sleep(2)
 
-filename = "python_test.jpg"
+import os
+filename = os.path.join(os.path.dirname(os.path.abspath(__file__)), "python_test.jpg")
 picam2.capture_file(filename)
 
 picam2.stop()

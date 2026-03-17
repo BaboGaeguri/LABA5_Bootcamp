@@ -45,7 +45,7 @@ ssh laba@10.168.238.107
 1. `Ctrl+Shift+X` → **Remote - SSH** 설치
 2. `Ctrl+Shift+P` → **Remote-SSH: Connect to Host**
 3. `laba@10.168.238.107` 입력 → 비밀번호 입력
-4. **Open Folder** → `/home/laba/security_system`
+4. **Open Folder** → `/home/laba/LABA5_Bootcamp`
 
 ---
 
@@ -54,18 +54,30 @@ ssh laba@10.168.238.107
 ```
 노트북 VSCode (로컬)
     └── Claude Code로 코드 작성/수정
-            ↓ scp로 전송
-라즈베리파이
+            ↓ git push (노트북 터미널)
+GitHub (BaboGaeguri/LABA5_Bootcamp)
+            ↓ git pull (라파 SSH 터미널)
+라즈베리파이 ~/LABA5_Bootcamp
     └── SSH 터미널에서 python3 실행
             ↓ 확인
 Remote-SSH VSCode
     └── 라파 파일 탐색/확인 (GUI)
 ```
 
-### 파일 전송 명령어 (노트북 일반 터미널에서 실행)
+### Git push (노트북 터미널에서)
 
 ```bash
-scp "c:/Users/박상윤/Desktop/LABA5_Bootcamp/PHASE_1/<파일명>" laba@10.168.238.107:~/security_system/<대상경로>
+cd c:/Users/박상윤/Desktop/LABA5_Bootcamp
+git add .
+git commit -m "커밋 메시지"
+git push
+```
+
+### Git pull (라파 SSH 터미널에서)
+
+```bash
+cd ~/LABA5_Bootcamp
+git pull
 ```
 
 ### 왜 이 흐름이 최선인가?
@@ -74,13 +86,27 @@ scp "c:/Users/박상윤/Desktop/LABA5_Bootcamp/PHASE_1/<파일명>" laba@10.168.
 |---|---|
 | 라파 VSCode 직접 사용 | 라파 저사양으로 버벅임, 불안정 |
 | Remote-SSH에서 Claude Code 사용 | 라파에 팀원 Claude Code 계정이 로그인되어 있어 덮어쓸 위험 |
-| 노트북 Claude Code + scp 전송 | 약간 번거롭지만 안전하고 안정적 |
+| scp 직접 전송 | 매번 수동 전송 필요, 번거로움 |
+| **노트북 Claude Code + GitHub push/pull** | 버전 관리 + 자동 동기화, 가장 효율적 |
 
-**결론:** 노트북 Claude Code(Pro 계정)로 코드 작성 → scp 전송 → Remote-SSH로 결과 확인이 현재 환경에서 가장 안전하고 효율적인 방법.
+**결론:** 노트북 Claude Code로 코드 작성 → git push → 라파에서 git pull → 실행. GitHub가 중간 다리 역할을 하므로 scp 없이도 동기화 가능.
 
 ---
 
-## 5. 라파 저장소 현황
+## 5. Git 초기 설정 (라파 최초 1회)
+
+라파에서 커밋 작성자 정보 설정:
+
+```bash
+git config --global user.email "깃허브_이메일"
+git config --global user.name "BaboGaeguri"
+```
+
+> Claude Code 계정과 무관함. git 커밋에 표시되는 이름/이메일 설정일 뿐.
+
+---
+
+## 6. 라파 저장소 현황
 
 - 저장장치: **microSD 카드** (SSD 없음)
 - 전체 용량: 58GB / 사용 중: 9.3GB (17%) / 여유: 47GB
@@ -92,15 +118,11 @@ df -h  # 용량 확인
 
 ---
 
-## 6. 트러블슈팅
-
-### scp 전송 실패 (No such file or directory)
-라파에 폴더가 없는 상태에서 scp 실행 시 실패.
-**해결:** SSH 터미널에서 `mkdir` 먼저 실행 후 scp 진행.
-
-```bash
-mkdir -p ~/security_system/templates
-```
+## 7. 트러블슈팅
 
 ### Permission denied (비밀번호 입력 후)
 첫 번째 비밀번호 입력에서 오타 발생 가능. 두 번째 시도에서 정상 입력하면 됨.
+
+### git push 인증 오류
+GitHub 비밀번호 대신 **Personal Access Token** 사용 필요.
+GitHub → Settings → Developer settings → Personal access tokens에서 발급.

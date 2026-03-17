@@ -11,7 +11,7 @@
 
 | 서브미션 | 기능 |
 |---|---|
-| 1-1 | GPIO 제어 (LED) |
+| 1-1 | 카메라 촬영 (사진 저장) |
 | 1-2 | GPIO 경고 (침입자/인가자 LED) |
 | 1-3 | 증거 촬영 (자동 저장) |
 | 1-4 | 라이브 모니터링 |
@@ -23,27 +23,51 @@
 ## 라파 프로젝트 디렉토리 구조
 
 ```
-/home/laba/security_system/
-├── main.py              ← 1-6(revised).py (Flask 서버 + 전체 보안 로직)
+/home/laba/LABA5_Bootcamp/PHASE_1/
+├── 1-1.py                          ← 카메라 촬영
+├── 1-2.py
+├── 1-3.py
+├── 1-4.py
+├── 1-5.py
+├── 1-6.py                          ← 통합 보안 시스템 (cv2.imshow 버전)
+├── 1-6(revised).py                 ← Flask 웹스트리밍 버전
+├── 1-6(html_source).py
+├── haarcascade_frontalface_default.xml
+├── python_test.jpg                 ← 1-1 실행 시 저장되는 사진
 └── templates/
-    └── index.html       ← 1-6(html_source).py (웹 모니터링 UI)
+    └── index.html                  ← 1-6 Flask용 웹 UI (반드시 templates/ 하위)
 ```
 
-### 디렉토리 생성 (SSH 터미널에서)
-
-```bash
-mkdir -p ~/security_system/templates
-```
+> `templates/` 폴더는 Flask의 `render_template("index.html")`이 자동으로 탐색하므로 삭제 불가.
 
 ---
 
-## 실행
+## 실행 방법
 
-SSH 터미널에서:
+### 공통: 노트북 수정 후 라파 반영
 
 ```bash
-cd ~/security_system
-python3 main.py
+# 노트북 터미널
+git add . && git commit -m "메시지" && git push
+
+# 라파 SSH 터미널
+cd ~/LABA5_Bootcamp && git pull
+```
+
+### 1-1 실행 (카메라 촬영)
+
+```bash
+python3 ~/LABA5_Bootcamp/PHASE_1/1-1.py
+```
+
+- 저장 경로: `PHASE_1/python_test.jpg` (스크립트 위치 기준으로 자동 저장)
+- 실행 시 `img.show()` 에러는 GUI 뷰어 없어서 발생 → 무시해도 됨, 사진은 정상 저장
+
+### 1-6 Flask 버전 실행
+
+```bash
+cd ~/LABA5_Bootcamp/PHASE_1
+python3 1-6\(revised\).py
 ```
 
 노트북 브라우저에서 라이브 모니터링:
@@ -63,7 +87,7 @@ http://10.168.238.107:5000
 
 ---
 
-## 주요 설정값 (main.py)
+## 주요 설정값 (1-6 revised)
 
 | 항목 | 값 | 설명 |
 |---|---|---|
@@ -89,10 +113,12 @@ http://10.168.238.107:5000
 
 ## 트러블슈팅
 
+### img.show() 에러 (1-1)
+```
+Error: no "view" rule for type "image/png"
+```
+라파 GUI 이미지 뷰어를 찾지 못해서 발생. 사진은 정상 저장됨. 무시해도 됨.
+
 ### PermissionError: '/home/pi'
 `CAPTURE_DIR`이 `/home/pi`로 설정되어 있으나 라파 계정이 `laba`라서 권한 오류 발생.
-
-**해결:** 라파 터미널에서:
-```bash
-sed -i 's|CAPTURE_DIR = "/home/pi"|CAPTURE_DIR = "/home/laba"|' ~/security_system/main.py
-```
+현재 코드에서는 이미 수정 완료.
