@@ -41,42 +41,54 @@ class MazeEscaper(Node):
         front, left, right = msg.data[0], msg.data[1], msg.data[2]
         twist = Twist()
 
-        # ── 1. 너무 가까움: 후진 ──
+        # ── 1. 후진 (최우선 안전 로직) ──
         if front < self.back_threshold:
-            twist.linear.x  = -0.3
-            twist.angular.z = -0.6 if right > left else 0.6
+            twist.linear.x  = -0.5
+            twist.angular.z = -1.0 if right > left else 1.0
             self.turn_count = 0
             self.get_logger().info(f'후진 | 전: {front:.2f}m 좌: {left:.2f}m 우: {right:.2f}m')
 
-        # ── 2. 전방 막힘 OR 회전 중 ──
+        # ── 2. 빨간 표지판: 막다른 길 → 반대 벽을 찾아가도록 좌회전 ──
+        elif self.color_hint == 'red':
+            twist.linear.x  = 0.0
+            twist.angular.z = 1.5
+            self.turn_count = 8   # 충분히 돌고 나서 전진
+            self.get_logger().info('빨간 표지판 → 우회전 회피')
+
+        # ── 3. 전방 막힘 OR 회전 중 ──
         elif front < self.front_threshold or self.turn_count > 0:
             twist.linear.x  = 0.0
-            twist.angular.z = -1.0   # 강하게 우회전
+            twist.angular.z = -1.5
 
             if front > self.front_threshold + 0.15:
-                # 전방이 충분히 열렸으면 카운터 줄이기
                 self.turn_count = max(0, self.turn_count - 1)
             else:
-                # 아직 막혀있으면 카운터 리셋
-                self.turn_count = 8   # 약 0.8초 더 회전 유지
+                self.turn_count = 8
 
             self.get_logger().info(f'우회전 중 | 전: {front:.2f}m count: {self.turn_count}')
 
-        # ── 3. 왼손 법칙: 왼쪽 벽 따라가기 ──
+        # ── 4. 초록 표지판: 올바른 경로 → 직진 유지 ──
+        elif self.color_hint == 'green':
+            twist.linear.x  = 0.5
+            twist.angular.z = 0.0
+            self.turn_count = 0
+            self.get_logger().info(f'초록 표지판 → 직진 | 전: {front:.2f}m')
+
+        # ── 5. 왼손 법칙 ──
         elif left > self.wall_follow_dist + 0.2:
-            twist.linear.x  = 0.3
-            twist.angular.z = 0.4
+            twist.linear.x  = 0.5
+            twist.angular.z = 0.6
             self.turn_count = 0
             self.get_logger().info(f'왼쪽 열림 → 좌조향 | 좌: {left:.2f}m')
 
         elif left < self.wall_follow_dist - 0.1:
-            twist.linear.x  = 0.3
-            twist.angular.z = -0.4
+            twist.linear.x  = 0.5
+            twist.angular.z = -0.6
             self.turn_count = 0
             self.get_logger().info(f'왼쪽 근접 → 우조향 | 좌: {left:.2f}m')
 
         else:
-            twist.linear.x  = 0.35
+            twist.linear.x  = 0.5
             twist.angular.z = 0.0
             self.turn_count = 0
             self.get_logger().info(f'직진 | 전: {front:.2f}m 좌: {left:.2f}m')

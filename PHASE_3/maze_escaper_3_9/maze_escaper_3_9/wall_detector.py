@@ -16,9 +16,9 @@ class WallDetector(Node):
         ranges = msg.ranges
 
         # angle_min=-π 기준: index 180=전방, index 270=좌측, index 90=우측
-        front = ranges[150:211]
-        left  = ranges[240:301]
-        right = ranges[60:121]
+        front = ranges[165:196]
+        left  = ranges[255:286]
+        right = ranges[75:106]
 
         def min_range(arr):
             valid = [r for r in arr if r != float('inf') and r > 0.0]

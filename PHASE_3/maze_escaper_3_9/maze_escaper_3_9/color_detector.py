@@ -39,9 +39,9 @@ class ColorDetector(Node):
         red_pixels   = cv2.countNonZero(mask_red)
 
         hint = String()
-        if green_pixels > 4000:    # 500 → 4000
+        if green_pixels > 30000:    
             hint.data = 'green'
-        elif red_pixels > 500:
+        elif red_pixels > 30000:
             hint.data = 'red'
         else:
             hint.data = 'none'

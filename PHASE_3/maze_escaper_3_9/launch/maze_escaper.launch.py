@@ -66,6 +66,11 @@ def generate_launch_description():
             package='maze_escaper_3_9',
             executable='maze_escaper',
             output='screen'
+            
         ),
-
+        # 7. teleop (새 터미널 창으로 실행)
+        ExecuteProcess(
+            cmd=['xterm', '-e', 'ros2 run teleop_twist_keyboard teleop_twist_keyboard'],
+            output='screen'
+        ),
     ])
