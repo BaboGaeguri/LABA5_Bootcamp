@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 // =========================
 // 센서 핀
 // =========================
@@ -61,6 +63,35 @@ void setup() {
   pinMode(IN4, OUTPUT);
 
   stopMotors();
+
+  // =========================
+  // 모터 단독 테스트
+  // =========================
+
+  // ── 오른쪽 모터 단독 테스트 (2초) ──
+  Serial.println(">>> 오른쪽 모터 테스트 시작...");
+  digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW);
+  analogWrite(ENA, 200);
+  delay(2000);
+  analogWrite(ENA, 0);
+  digitalWrite(IN1, LOW);
+  Serial.println(">>> 오른쪽 모터 테스트 완료");
+
+  delay(500);
+
+  // ── 왼쪽 모터 단독 테스트 (2초) ──
+  Serial.println(">>> 왼쪽 모터 테스트 시작...");
+  digitalWrite(IN3, LOW); digitalWrite(IN4, HIGH);
+  analogWrite(ENB, 200);
+  delay(2000);
+  analogWrite(ENB, 0);
+  digitalWrite(IN4, LOW);
+  Serial.println(">>> 왼쪽 모터 테스트 완료");
+
+  delay(500);
+  Serial.println(">>> 모터 테스트 완료 → 라인 트레이싱 시작");
+
+  // =========================
 
   Serial.println("=== PID 라인 트레이싱 시작 ===");
   Serial.print("Kp="); Serial.print(Kp);
