@@ -8,7 +8,8 @@ from gpiozero import AngularServo
 # -----------------------------
 # Haar 다운로드
 # -----------------------------
-xml_filename = 'haarcascade_frontalface_default.xml'
+PHASE1_DIR = os.path.dirname(os.path.abspath(__file__))
+xml_filename = os.path.join(PHASE1_DIR, 'haarcascade_frontalface_default.xml')
 if not os.path.exists(xml_filename):
     url = 'https://raw.githubusercontent.com/opencv/opencv/master/data/haarcascades/haarcascade_frontalface_default.xml'
     urllib.request.urlretrieve(url, xml_filename)
