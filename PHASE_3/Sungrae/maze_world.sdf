@@ -1,0 +1,73 @@
+<?xml version="1.0" ?>
+<sdf version="1.8">
+  <world name="maze_world">
+    <physics name="1ms" type="ignored">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+    <plugin name="gz::sim::systems::Physics" filename="gz-sim-physics-system"/>
+    <plugin name="gz::sim::systems::UserCommands" filename="gz-sim-user-commands-system"/>
+    <plugin name="gz::sim::systems::SceneBroadcaster" filename="gz-sim-scene-broadcaster-system"/>
+    <plugin name="gz::sim::systems::Sensors" filename="gz-sim-sensors-system">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision"><geometry><plane><normal>0 0 1</normal></plane></geometry></collision>
+        <visual name="visual">
+          <geometry><plane><normal>0 0 1</normal></plane></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="outer_wall_top"><static>true</static><pose>0 2.25 0.25 0 0 0</pose><link name="l"><visual name="v"><geometry><box><size>4.5 0.1 0.5</size></box></geometry><material><ambient>0.3 0.3 0.3 1</ambient></material></visual><collision name="c"><geometry><box><size>4.5 0.1 0.5</size></box></geometry></collision></link></model>
+    <model name="outer_wall_bottom"><static>true</static><pose>0 -2.25 0.25 0 0 0</pose><link name="l"><visual name="v"><geometry><box><size>4.5 0.1 0.5</size></box></geometry><material><ambient>0.3 0.3 0.3 1</ambient></material></visual><collision name="c"><geometry><box><size>4.5 0.1 0.5</size></box></geometry></collision></link></model>
+    <model name="outer_wall_left"><static>true</static><pose>-2.25 0.45 0.25 0 0 0</pose><link name="l"><visual name="v"><geometry><box><size>0.1 3.6 0.5</size></box></geometry><material><ambient>0.3 0.3 0.3 1</ambient></material></visual><collision name="c"><geometry><box><size>0.1 3.6 0.5</size></box></geometry></collision></link></model>
+    <model name="outer_wall_right"><static>true</static><pose>2.25 -0.45 0.25 0 0 0</pose><link name="l"><visual name="v"><geometry><box><size>0.1 3.6 0.5</size></box></geometry><material><ambient>0.3 0.3 0.3 1</ambient></material></visual><collision name="c"><geometry><box><size>0.1 3.6 0.5</size></box></geometry></collision></link></model>
+
+    <model name="inner_h1_len3"><static>true</static><pose>-0.9 1.35 0.25 0 0 0</pose><link name="l"><visual name="v"><geometry><box><size>2.7 0.1 0.5</size></box></geometry></visual><collision name="c"><geometry><box><size>2.7 0.1 0.5</size></box></geometry></collision></link></model>
+    <model name="inner_h3_len3"><static>true</static><pose>0.0 -0.45 0.25 0 0 0</pose><link name="l"><visual name="v"><geometry><box><size>2.7 0.1 0.5</size></box></geometry></visual><collision name="c"><geometry><box><size>2.7 0.1 0.5</size></box></geometry></collision></link></model>
+    <model name="inner_h2_len2"><static>true</static><pose>-0.45 0.45 0.25 0 0 0</pose><link name="l"><visual name="v"><geometry><box><size>1.8 0.1 0.5</size></box></geometry></visual><collision name="c"><geometry><box><size>1.8 0.1 0.5</size></box></geometry></collision></link></model>
+    <model name="inner_v1_len1"><static>true</static><pose>-0.45 0.0 0.25 0 0 0</pose><link name="l"><visual name="v"><geometry><box><size>0.1 0.9 0.5</size></box></geometry></visual><collision name="c"><geometry><box><size>0.1 0.9 0.5</size></box></geometry></collision></link></model>
+    <model name="inner_v2_len1"><static>true</static><pose>0.45 0.9 0.25 0 0 0</pose><link name="l"><visual name="v"><geometry><box><size>0.1 0.9 0.5</size></box></geometry></visual><collision name="c"><geometry><box><size>0.1 0.9 0.5</size></box></geometry></collision></link></model>
+    <model name="inner_v3_len1"><static>true</static><pose>-1.35 -0.9 0.25 0 0 0</pose><link name="l"><visual name="v"><geometry><box><size>0.1 0.9 0.5</size></box></geometry></visual><collision name="c"><geometry><box><size>0.1 0.9 0.5</size></box></geometry></collision></link></model>
+    <model name="inner_v4_len1"><static>true</static><pose>0.45 -1.8 0.25 0 0 0</pose><link name="l"><visual name="v"><geometry><box><size>0.1 0.9 0.5</size></box></geometry></visual><collision name="c"><geometry><box><size>0.1 0.9 0.5</size></box></geometry></collision></link></model>
+    <model name="inner_v5_len1"><static>true</static><pose>1.35 0.9 0.25 0 0 0</pose><link name="l"><visual name="v"><geometry><box><size>0.1 0.9 0.5</size></box></geometry></visual><collision name="c"><geometry><box><size>0.1 0.9 0.5</size></box></geometry></collision></link></model>
+    <model name="inner_h4_len1"><static>true</static><pose>-0.9 -1.35 0.25 0 0 0</pose><link name="l"><visual name="v"><geometry><box><size>0.9 0.1 0.5</size></box></geometry></visual><collision name="c"><geometry><box><size>0.9 0.1 0.5</size></box></geometry></collision></link></model>
+    <model name="inner_h5_len1"><static>true</static><pose>0.9 -1.35 0.25 0 0 0</pose><link name="l"><visual name="v"><geometry><box><size>0.9 0.1 0.5</size></box></geometry></visual><collision name="c"><geometry><box><size>0.9 0.1 0.5</size></box></geometry></collision></link></model>
+    <model name="inner_h6_len1"><static>true</static><pose>1.8 0.45 0.25 0 0 0</pose><link name="l"><visual name="v"><geometry><box><size>0.9 0.1 0.5</size></box></geometry></visual><collision name="c"><geometry><box><size>0.9 0.1 0.5</size></box></geometry></collision></link></model>
+
+    <model name="sign_red_top1"><static>true</static><pose>0.225 2.19 0.15 0 0 0</pose><link name="l"><visual name="v"><geometry><box><size>0.4 0.02 0.2</size></box></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual></link></model>
+    <model name="sign_green_top1"><static>true</static><pose>1.125 2.19 0.15 0 0 0</pose><link name="l"><visual name="v"><geometry><box><size>0.4 0.02 0.2</size></box></geometry><material><ambient>0 1 0 1</ambient><diffuse>0 1 0 1</diffuse></material></visual></link></model>
+    <model name="sign_green_top2"><static>true</static><pose>2.025 2.19 0.15 0 0 0</pose><link name="l"><visual name="v"><geometry><box><size>0.4 0.02 0.2</size></box></geometry><material><ambient>0 1 0 1</ambient><diffuse>0 1 0 1</diffuse></material></visual></link></model>
+    <model name="sign_red_right1"><static>true</static><pose>2.19 1.08 0.15 0 0 0</pose><link name="l"><visual name="v"><geometry><box><size>0.02 0.4 0.2</size></box></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual></link></model>
+    <model name="sign_green_right1"><static>true</static><pose>2.19 -0.225 0.15 0 0 0</pose><link name="l"><visual name="v"><geometry><box><size>0.02 0.4 0.2</size></box></geometry><material><ambient>0 1 0 1</ambient><diffuse>0 1 0 1</diffuse></material></visual></link></model>
+    <model name="sign_red_right2"><static>true</static><pose>2.19 -1.575 0.15 0 0 0</pose><link name="l"><visual name="v"><geometry><box><size>0.02 0.4 0.2</size></box></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual></link></model>
+    <model name="sign_green_v2"><static>true</static><pose>0.51 0.9 0.15 0 0 0</pose><link name="l"><visual name="v"><geometry><box><size>0.02 0.4 0.2</size></box></geometry><material><ambient>0 1 0 1</ambient><diffuse>0 1 0 1</diffuse></material></visual></link></model>
+    <model name="sign_red_h3_top"><static>true</static><pose>0.225 -0.39 0.15 0 0 0</pose><link name="l"><visual name="v"><geometry><box><size>0.4 0.02 0.2</size></box></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual></link></model>
+    <model name="sign_red_h3_bottom"><static>true</static><pose>-0.675 -0.51 0.15 0 0 0</pose><link name="l"><visual name="v"><geometry><box><size>0.4 0.02 0.2</size></box></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual></link></model>
+    <model name="sign_green_h3_bottom"><static>true</static><pose>0.675 -0.51 0.15 0 0 0</pose><link name="l"><visual name="v"><geometry><box><size>0.4 0.02 0.2</size></box></geometry><material><ambient>0 1 0 1</ambient><diffuse>0 1 0 1</diffuse></material></visual></link></model>
+    <model name="sign_red_v3"><static>true</static><pose>-1.41 -0.9 0.15 0 0 0</pose><link name="l"><visual name="v"><geometry><box><size>0.02 0.4 0.2</size></box></geometry><material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material></visual></link></model>
+    <model name="sign_green_h4_bottom"><static>true</static><pose>-1.125 -1.41 0.15 0 0 0</pose><link name="l"><visual name="v"><geometry><box><size>0.4 0.02 0.2</size></box></geometry><material><ambient>0 1 0 1</ambient><diffuse>0 1 0 1</diffuse></material></visual></link></model>
+
+    <model name="entrance_room_top"><static>true</static><pose>-2.7 -1.35 0.25 0 0 0</pose><link name="l"><visual name="v"><geometry><box><size>0.9 0.1 0.5</size></box></geometry><material><ambient>0.3 0.3 0.3 1</ambient></material></visual><collision name="c"><geometry><box><size>0.9 0.1 0.5</size></box></geometry></collision></link></model>
+    <model name="entrance_room_bottom"><static>true</static><pose>-2.7 -2.25 0.25 0 0 0</pose><link name="l"><visual name="v"><geometry><box><size>0.9 0.1 0.5</size></box></geometry><material><ambient>0.3 0.3 0.3 1</ambient></material></visual><collision name="c"><geometry><box><size>0.9 0.1 0.5</size></box></geometry></collision></link></model>
+    <model name="entrance_room_left"><static>true</static><pose>-3.15 -1.8 0.25 0 0 0</pose><link name="l"><visual name="v"><geometry><box><size>0.1 1.0 0.5</size></box></geometry><material><ambient>0.3 0.3 0.3 1</ambient></material></visual><collision name="c"><geometry><box><size>0.1 1.0 0.5</size></box></geometry></collision></link></model>
+
+    <model name="exit_room_top"><static>true</static><pose>2.7 2.25 0.25 0 0 0</pose><link name="l"><visual name="v"><geometry><box><size>0.9 0.1 0.5</size></box></geometry><material><ambient>0.3 0.3 0.3 1</ambient></material></visual><collision name="c"><geometry><box><size>0.9 0.1 0.5</size></box></geometry></collision></link></model>
+    <model name="exit_room_bottom"><static>true</static><pose>2.7 1.35 0.25 0 0 0</pose><link name="l"><visual name="v"><geometry><box><size>0.9 0.1 0.5</size></box></geometry><material><ambient>0.3 0.3 0.3 1</ambient></material></visual><collision name="c"><geometry><box><size>0.9 0.1 0.5</size></box></geometry></collision></link></model>
+    <model name="exit_room_right"><static>true</static><pose>3.15 1.8 0.25 0 0 0</pose><link name="l"><visual name="v"><geometry><box><size>0.1 1.0 0.5</size></box></geometry><material><ambient>0.3 0.3 0.3 1</ambient></material></visual><collision name="c"><geometry><box><size>0.1 1.0 0.5</size></box></geometry></collision></link></model>
+
+  </world>
+</sdf>
