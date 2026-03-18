@@ -76,9 +76,9 @@ def camera_thread():
 
             faces = face_cascade.detectMultiScale(
                 gray,
-                scaleFactor=1.2,
-                minNeighbors=5,
-                minSize=(60, 60)
+                scaleFactor=1.1,
+                minNeighbors=10,
+                minSize=(80, 80)
             )
 
             movement = 0
