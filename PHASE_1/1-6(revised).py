@@ -41,7 +41,7 @@ face_cascade = cv2.CascadeClassifier(CASCADE_PATH)
 # =========================
 # 저장 경로
 # =========================
-CAPTURE_DIR = "/home/pi"
+CAPTURE_DIR = os.path.expanduser("~/captures")
 os.makedirs(CAPTURE_DIR, exist_ok=True)
 
 # =========================
@@ -111,7 +111,7 @@ def clamp(value, min_value, max_value):
 # 기본값 1.0 = 보정 없음
 COLOR_RED_SCALE = 1.0
 COLOR_GREEN_SCALE = 1.0
-COLOR_BLUE_SCALE = 0.75  # 파란 치우침 보정 (0.7~0.85 범위에서 조정)
+COLOR_BLUE_SCALE = 1.0  # 보정 비활성화 (필요 시 0.7~0.85로 조정)
 
 
 def apply_color_correction(rgb_frame):
@@ -175,7 +175,7 @@ def detect_blue_card(rgb_frame, face):
     if roi.size == 0:
         return False, 0.0, (x1, y1, x2, y2)
 
-    hsv = cv2.cvtColor(roi, cv2.COLOR_RGB2HSV)
+    hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(hsv, BLUE_LOWER, BLUE_UPPER)
 
     blue_pixels = cv2.countNonZero(mask)
@@ -249,12 +249,8 @@ def camera_thread():
     picam2.start()
     time.sleep(2)  # AWB 수렴 대기 시간 늘림
 
-    # AWB 안정화 후 현재 게인 고정 (파란색 치우침 방지)
-    metadata = picam2.capture_metadata()
-    colour_gains = metadata.get("ColourGains", (2.0, 1.5))  # (red_gain, blue_gain)
-    # blue_gain을 낮추거나 red_gain을 높여서 파란 치우침 보정
-    # 기본값보다 파란 화면이면 blue_gain을 줄여라 (예: 1.2~1.5)
-    picam2.set_controls({"ColourGains": (2.2, 1.2)})  # red_gain 높이고 blue_gain 낮춰서 파란 치우침 보정
+    # AWB 자동 모드 사용 (수동 ColourGains 제거)
+    picam2.set_controls({"AwbEnable": True})
 
     prev_gray_blur = None
     current_mode = "standby"
@@ -265,11 +261,10 @@ def camera_thread():
 
     try:
         while True:
-            frame = picam2.capture_array()  # RGB
-            frame = apply_color_correction(frame)
+            frame = picam2.capture_array()  # BGR로 취급
             display = frame.copy()
 
-            gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             gray_blur = cv2.GaussianBlur(gray, (21, 21), 0)
 
             if prev_gray_blur is None:
@@ -379,8 +374,7 @@ def camera_thread():
                             log_event("Intruder detected")
 
                         # 침입자 자동 촬영
-                        display_bgr_for_save = cv2.cvtColor(display, cv2.COLOR_RGB2BGR)
-                        save_intruder_frame(display_bgr_for_save)
+                        save_intruder_frame(display)
 
                 else:
                     # 경계 모드인데 얼굴이 없으면 LED는 끄고 대기
@@ -404,8 +398,7 @@ def camera_thread():
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
 
             # 스트리밍용 JPEG 변환
-            display_bgr = cv2.cvtColor(display, cv2.COLOR_RGB2BGR)
-            ok, jpeg = cv2.imencode(".jpg", display_bgr, [cv2.IMWRITE_JPEG_QUALITY, 75])
+            ok, jpeg = cv2.imencode(".jpg", display, [cv2.IMWRITE_JPEG_QUALITY, 75])
 
             if ok:
                 with frame_lock:
