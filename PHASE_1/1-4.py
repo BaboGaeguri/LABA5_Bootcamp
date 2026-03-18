@@ -1,41 +1,27 @@
+from picamera2 import Picamera2
+from flask import Flask, Response
 import cv2
-import time
 import RPi.GPIO as GPIO
 import os
-import urllib.request
-from picamera2 import Picamera2
+import time
 
-print("FACE DETECTION STARTED")
+app = Flask(__name__)
 
-# -----------------------------
-# 0️⃣ Haar Cascade 자동 다운로드
-# -----------------------------
-xml_filename = 'haarcascade_frontalface_default.xml'
-
-if not os.path.exists(xml_filename):
-    print("Downloading Haar Cascade...")
-    url = "https://raw.githubusercontent.com/opencv/opencv/master/data/haarcascades/haarcascade_frontalface_default.xml"
-    urllib.request.urlretrieve(url, xml_filename)
-    print("Download complete!")
-
-face_cascade = cv2.CascadeClassifier(xml_filename)
+# ===== Haar Cascade =====
+xml_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'haarcascade_frontalface_default.xml')
+face_cascade = cv2.CascadeClassifier(xml_path)
 
 if face_cascade.empty():
     print("ERROR: Could not load Haar Cascade.")
     exit()
 
-# -----------------------------
-# 1️⃣ GPIO 설정
-# -----------------------------
+# ===== GPIO 설정 =====
 LED_PIN = 17
-
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(LED_PIN, GPIO.OUT)
 GPIO.output(LED_PIN, False)
 
-# -----------------------------
-# 2️⃣ Picamera2 설정 (RGB 기본 유지)
-# -----------------------------
+# ===== Picamera2 설정 =====
 picam2 = Picamera2()
 picam2.configure(
     picam2.create_preview_configuration(
@@ -43,20 +29,15 @@ picam2.configure(
     )
 )
 picam2.start()
-
 time.sleep(2)
 
-print("Press 'q' to quit.")
+print("FACE DETECTION STARTED")
 
-try:
+def generate():
     while True:
-        # 📷 RGB 프레임 받기
         frame = picam2.capture_array()
-
-        # 1️⃣ 그레이스케일 변환 (RGB 기준)
         gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
 
-        # 2️⃣ 얼굴 검출
         faces = face_cascade.detectMultiScale(
             gray,
             scaleFactor=1.1,
@@ -64,7 +45,6 @@ try:
             minSize=(60, 60)
         )
 
-        # 3️⃣ LED 제어
         if len(faces) > 0:
             GPIO.output(LED_PIN, True)
             status = "FACE DETECTED"
@@ -72,34 +52,35 @@ try:
             GPIO.output(LED_PIN, False)
             status = "NO FACE"
 
-        # 4️⃣ 화면 출력용 RGB → BGR 변환
         frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
-        # 5️⃣ 얼굴 박스 그리기
         for (x, y, w, h) in faces:
             cv2.rectangle(frame_bgr, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-        # 상태 텍스트 표시
         cv2.putText(
-            frame_bgr,
-            status,
-            (20, 40),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            1,
-            (0, 0, 255) if len(faces) > 0 else (0, 255, 0),
-            2
+            frame_bgr, status, (20, 40),
+            cv2.FONT_HERSHEY_SIMPLEX, 1,
+            (0, 0, 255) if len(faces) > 0 else (0, 255, 0), 2
         )
 
-        cv2.imshow("Face Detection", frame_bgr)
+        _, buffer = cv2.imencode('.jpg', frame_bgr)
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
 
-        # 종료 키
-        key = cv2.waitKey(1) & 0xFF
-        if key == ord('q') or key == 27:
-            break
+@app.route('/')
+def index():
+    return '<img src="/video_feed">'
 
-finally:
-    GPIO.output(LED_PIN, False)
-    GPIO.cleanup()
-    picam2.stop()
-    cv2.destroyAllWindows()
-    print("EXITED CLEANLY")
+@app.route('/video_feed')
+def video_feed():
+    return Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+if __name__ == '__main__':
+    print("Server running at http://0.0.0.0:5000")
+    try:
+        app.run(host='0.0.0.0', port=5000)
+    finally:
+        GPIO.output(LED_PIN, False)
+        GPIO.cleanup()
+        picam2.stop()
+        print("EXITED CLEANLY")
