@@ -33,13 +33,15 @@ current_angle = 90
 servo.angle = current_angle
 
 # ===== 서보 추적 파라미터 =====
-Kp        = 0.02
-DEAD_ZONE = 50
-MAX_STEP  = 2
-ANGLE_MIN = 10
-ANGLE_MAX = 170
-ERROR_SMOOTH = 5
-error_history = deque(maxlen=ERROR_SMOOTH)
+Kp             = 0.02
+DEAD_ZONE      = 100   # 중앙 ±100px 이내면 서보 정지
+MAX_STEP       = 2
+ANGLE_MIN      = 10
+ANGLE_MAX      = 170
+ERROR_SMOOTH   = 7
+SERVO_INTERVAL = 0.5   # 서보 업데이트 최소 간격 (초)
+error_history  = deque(maxlen=ERROR_SMOOTH)
+last_servo_t   = 0.0
 
 # ===== 색상 HSV 범위 =====
 BLUE_LOWER  = (105, 180, 80)
@@ -183,10 +185,12 @@ def camera_thread():
                     error_history.append(error)
                     smooth_error = sum(error_history) / len(error_history)
 
-                    if abs(smooth_error) > DEAD_ZONE:
+                    now = time.time()
+                    if abs(smooth_error) > DEAD_ZONE and now - last_servo_t > SERVO_INTERVAL:
                         movement      = clamp(-smooth_error * Kp, -MAX_STEP, MAX_STEP)
                         current_angle = clamp(current_angle + movement, ANGLE_MIN, ANGLE_MAX)
                         servo.angle   = current_angle
+                        last_servo_t  = now
 
                     # 상태 결정
                     if card_type == "BLUE":
