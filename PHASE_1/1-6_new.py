@@ -131,6 +131,7 @@ def camera_thread():
     WIDTH, HEIGHT = 640, 480
     center_x = WIDTH // 2
 
+    global last_servo_t
     prev_gray      = None
     state          = STATE_STANDBY
     last_motion_t  = time.time()
