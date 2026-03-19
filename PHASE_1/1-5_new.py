@@ -2,6 +2,7 @@ import cv2
 import time
 import os
 import threading
+import RPi.GPIO as GPIO
 from flask import Flask, Response
 from picamera2 import Picamera2
 from gpiozero import AngularServo
@@ -10,9 +11,28 @@ app = Flask(__name__)
 
 # ===== 파란색 HSV 범위 =====
 # 조명에 따라 조정 필요
-BLUE_LOWER = (100, 100, 50)
-BLUE_UPPER = (130, 255, 255)
-MIN_AREA = 1000  # 너무 작은 노이즈 무시
+BLUE_LOWER = (100, 120, 80)
+BLUE_UPPER = (125, 255, 255)
+MIN_AREA = 8000  # 카드 크기 이상만 반응
+
+# ===== 부저 =====
+BUZZER_PIN = 22
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(BUZZER_PIN, GPIO.OUT)
+buzzer_pwm = GPIO.PWM(BUZZER_PIN, 1000)
+buzzer_active = False
+
+def buzzer_on():
+    global buzzer_active
+    if not buzzer_active:
+        buzzer_pwm.start(50)
+        buzzer_active = True
+
+def buzzer_off():
+    global buzzer_active
+    if buzzer_active:
+        buzzer_pwm.stop()
+        buzzer_active = False
 
 # ===== 서보 (gpiozero) =====
 servo = AngularServo(
@@ -66,9 +86,12 @@ def camera_thread():
 
             contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
+            detected = False
             if contours:
                 largest = max(contours, key=cv2.contourArea)
-                if cv2.contourArea(largest) > MIN_AREA:
+                area = cv2.contourArea(largest)
+                if area > MIN_AREA:
+                    detected = True
                     x, y, w, h = cv2.boundingRect(largest)
                     obj_center_x = x + w // 2
                     error = obj_center_x - center_x
@@ -78,11 +101,16 @@ def camera_thread():
                         current_angle = clamp(current_angle + movement, ANGLE_MIN, ANGLE_MAX)
                         servo.angle = current_angle
 
-                    print(f"error: {error}  angle: {current_angle:.1f}")
+                    print(f"area: {int(area)}  error: {error}  angle: {current_angle:.1f}  HSV_lower: {BLUE_LOWER}")
 
                     cv2.rectangle(display, (x, y), (x + w, y + h), (255, 128, 0), 2)
-                    cv2.putText(display, f"Error: {error:.0f}px", (10, 55),
+                    cv2.putText(display, f"Area:{int(area)} Error:{error:.0f}px", (10, 55),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 128, 0), 2)
+
+            if detected:
+                buzzer_on()
+            else:
+                buzzer_off()
 
             cv2.line(display, (center_x, 0), (center_x, HEIGHT), (255, 0, 0), 2)
             cv2.putText(display, f"Angle: {current_angle:.1f} deg", (10, 25),
@@ -97,6 +125,8 @@ def camera_thread():
     finally:
         picam2.stop()
         servo.detach()
+        buzzer_off()
+        GPIO.cleanup()
         print("Exited cleanly.")
 
 
