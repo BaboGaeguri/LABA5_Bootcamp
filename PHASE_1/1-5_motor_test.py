@@ -5,6 +5,7 @@ import time
 from gpiozero import AngularServo
 
 # ===== 서보 설정 =====
+'''
 servo = AngularServo(
     18,
     min_angle=0,
@@ -12,10 +13,18 @@ servo = AngularServo(
     min_pulse_width=0.0005,
     max_pulse_width=0.0025
 )
+'''
+servo = AngularServo(
+    18,
+    min_angle=0,
+    max_angle=180,
+    min_pulse_width=0.001,   # 변경
+    max_pulse_width=0.002    # 변경
+)
 
 current_angle = 90
 servo.angle = current_angle
-STEP = 5        # 한 번에 움직이는 각도
+STEP = 10        # 한 번에 움직이는 각도
 ANGLE_MIN = 0
 ANGLE_MAX = 180
 
