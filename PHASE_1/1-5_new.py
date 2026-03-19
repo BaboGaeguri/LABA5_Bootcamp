@@ -11,9 +11,9 @@ app = Flask(__name__)
 
 # ===== 파란색 HSV 범위 =====
 # 조명에 따라 조정 필요
-BLUE_LOWER = (100, 120, 80)
+BLUE_LOWER = (105, 140, 80)
 BLUE_UPPER = (125, 255, 255)
-MIN_AREA = 8000  # 카드 크기 이상만 반응
+MIN_AREA = 15000  # 카드 크기 이상만 반응
 
 # ===== 부저 =====
 BUZZER_PIN = 22
@@ -46,9 +46,9 @@ servo = AngularServo(
 current_angle = 90
 servo.angle = current_angle
 
-Kp = 0.06
+Kp = 0.02
 DEAD_ZONE = 50
-MAX_STEP = 4
+MAX_STEP = 2
 ANGLE_MIN = 10
 ANGLE_MAX = 170
 
