@@ -89,7 +89,29 @@
 - 항상 라파 연결을 먼저 끊고 외부 전원을 연결할 것
 
 ### 현재 상태
-- 확인 중 (SSH 연결 및 정상 동작 여부)
+- 라파 정상 동작 확인, SSH 연결 OK
+- 배터리 외부 전원 시도 2회 모두 실패 → **배터리 방향 포기**
+- 라파 5V 핀으로 계속 진행
+
+---
+
+## [2026-03-20] pigpio 적용
+
+### 문제
+- `gpiozero AngularServo`는 소프트웨어 PWM → 타이밍 불안정 → 서보 움찔거림
+
+### 해결
+- `pigpio` 하드웨어 PWM으로 교체
+- `python3-pigpio` 설치 (`pigpio` 패키지는 저장소 미지원 → 소스 빌드)
+- `hardware_test.py` 서보 부분 gpiozero → pigpio 교체
+
+```python
+pi = pigpio.pi()
+pi.set_servo_pulsewidth(18, angle_to_pw(angle))  # 500~2000us
+```
+
+### 결과
+- 이전보다 서보 동작 개선됨
 
 ---
 
