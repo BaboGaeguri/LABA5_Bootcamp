@@ -55,6 +55,11 @@ ANGLE_MAX = 170
 def clamp(v, lo, hi):
     return max(lo, min(hi, v))
 
+# ===== error 이동평균 =====
+from collections import deque
+ERROR_SMOOTH = 5  # 평균 낼 프레임 수
+error_history = deque(maxlen=ERROR_SMOOTH)
+
 # ===== 카메라 =====
 WIDTH, HEIGHT = 640, 480
 
@@ -95,13 +100,15 @@ def camera_thread():
                     x, y, w, h = cv2.boundingRect(largest)
                     obj_center_x = x + w // 2
                     error = obj_center_x - center_x
+                    error_history.append(error)
+                    smooth_error = sum(error_history) / len(error_history)
 
-                    if abs(error) > DEAD_ZONE:
-                        movement = clamp(-error * Kp, -MAX_STEP, MAX_STEP)
+                    if abs(smooth_error) > DEAD_ZONE:
+                        movement = clamp(-smooth_error * Kp, -MAX_STEP, MAX_STEP)
                         current_angle = clamp(current_angle + movement, ANGLE_MIN, ANGLE_MAX)
                         servo.angle = current_angle
 
-                    print(f"area: {int(area)}  error: {error}  angle: {current_angle:.1f}  HSV_lower: {BLUE_LOWER}")
+                    print(f"area: {int(area)}  error: {error:.0f}  smooth: {smooth_error:.0f}  angle: {current_angle:.1f}")
 
                     cv2.rectangle(display, (x, y), (x + w, y + h), (255, 128, 0), 2)
                     cv2.putText(display, f"Area:{int(area)} Error:{error:.0f}px", (10, 55),
