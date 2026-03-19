@@ -46,18 +46,20 @@ servo = AngularServo(
 current_angle = 90
 servo.angle = current_angle
 
-Kp = 0.02
-DEAD_ZONE = 50
-MAX_STEP = 2
-ANGLE_MIN = 10
-ANGLE_MAX = 170
+Kp             = 0.02
+DEAD_ZONE      = 100
+MAX_STEP       = 2
+ANGLE_MIN      = 10
+ANGLE_MAX      = 170
+ERROR_SMOOTH   = 7
+SERVO_INTERVAL = 0.5
+last_servo_t   = 0.0
 
 def clamp(v, lo, hi):
     return max(lo, min(hi, v))
 
 # ===== error 이동평균 =====
 from collections import deque
-ERROR_SMOOTH = 5  # 평균 낼 프레임 수
 error_history = deque(maxlen=ERROR_SMOOTH)
 
 # ===== 카메라 =====
@@ -67,7 +69,7 @@ output_frame = None
 frame_lock = threading.Lock()
 
 def camera_thread():
-    global output_frame, current_angle
+    global output_frame, current_angle, last_servo_t
 
     picam2 = Picamera2()
     config = picam2.create_preview_configuration(
@@ -103,10 +105,12 @@ def camera_thread():
                     error_history.append(error)
                     smooth_error = sum(error_history) / len(error_history)
 
-                    if abs(smooth_error) > DEAD_ZONE:
+                    now = time.time()
+                    if abs(smooth_error) > DEAD_ZONE and now - last_servo_t > SERVO_INTERVAL:
                         movement = clamp(-smooth_error * Kp, -MAX_STEP, MAX_STEP)
                         current_angle = clamp(current_angle + movement, ANGLE_MIN, ANGLE_MAX)
                         servo.angle = current_angle
+                        last_servo_t = now
 
                     print(f"area: {int(area)}  error: {error:.0f}  smooth: {smooth_error:.0f}  angle: {current_angle:.1f}")
 

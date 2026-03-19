@@ -39,7 +39,7 @@ MAX_STEP       = 2
 ANGLE_MIN      = 10
 ANGLE_MAX      = 170
 ERROR_SMOOTH   = 7
-SERVO_INTERVAL = 1.0   # 서보 업데이트 최소 간격 (초)
+SERVO_INTERVAL = 0.5   # 서보 업데이트 최소 간격 (초)
 error_history  = deque(maxlen=ERROR_SMOOTH)
 last_servo_t   = 0.0
 

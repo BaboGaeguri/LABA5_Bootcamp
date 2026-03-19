@@ -159,9 +159,15 @@ movement = clamp(-error * Kp, -MAX_STEP, MAX_STEP)
 | `BLUE_LOWER` S채도 | 120 → 140 → 180 | 배경 오인식 감소 |
 | error 이동평균 (5프레임) | `smooth_error` 적용 | 진동 완화 시도 중 |
 
+### 추가 적용 (서보 진동 완화)
+- `DEAD_ZONE` : 50 → 100 (중앙 ±100px 이내 서보 정지)
+- `ERROR_SMOOTH` : 5 → 7 프레임
+- `SERVO_INTERVAL = 0.5` 추가 (0.5초마다 한 번만 서보 명령)
+- `last_servo_t` 전역변수 선언 누락 → `UnboundLocalError` 수정
+
 ### 현재 상태
-- 이동평균 적용 후 테스트 진행 중
-- 근본 해결 안 되면 ③ 서보 업데이트 주기 제한 또는 MediaPipe 전환 검토
+- 진동 완화됨, 테스트 진행 중
+- 1-5_new.py / 1-6_new.py 동일 파라미터로 통일 완료
 
 ---
 
