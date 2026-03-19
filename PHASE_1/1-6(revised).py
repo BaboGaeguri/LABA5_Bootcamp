@@ -94,6 +94,14 @@ last_motion_time = 0
 last_intruder_capture_time = 0
 last_servo_update_time = 0
 current_servo_angle = 0.0
+face_first_seen_time = 0        # 얼굴 최초 감지 시각
+face_continuous = False          # 연속 감지 여부
+FACE_CONFIRM_SECONDS = 3        # 서보 작동까지 필요한 연속 감지 시간(초)
+
+# 얼굴 락온 추적용
+tracked_face_center = None       # 현재 추적 중인 얼굴 중심 (x, y)
+face_lost_time = 0               # 얼굴이 사라진 시각
+FACE_LOCK_COOLDOWN = 5           # 얼굴 사라진 후 새 인식까지 대기(초)
 
 
 # =========================
@@ -333,21 +341,44 @@ def camera_thread():
                 with state_lock:
                     state["faces"] = face_count
 
-                if face_count > 0:
-                    # 가장 큰 얼굴 선택 -> 서보 추적 기준
-                    largest_face = max(faces, key=lambda f: f[2] * f[3])
-                    face_center_x = largest_face[0] + largest_face[2] // 2
+                # 쿨다운 중이면 얼굴 무시 (이전 사람 사라진 후 5초 대기)
+                now_t = time.time()
+                in_cooldown = (tracked_face_center is None and face_lost_time > 0
+                               and now_t - face_lost_time < FACE_LOCK_COOLDOWN)
+
+                if face_count > 0 and not in_cooldown:
+                    if not face_continuous:
+                        face_first_seen_time = now_t
+                        face_continuous = True
+
+                    # 추적 중인 얼굴이 있으면 가장 가까운 얼굴 선택, 없으면 가장 큰 얼굴
+                    if tracked_face_center is not None:
+                        def face_distance(f):
+                            cx = f[0] + f[2] // 2
+                            cy = f[1] + f[3] // 2
+                            return (cx - tracked_face_center[0])**2 + (cy - tracked_face_center[1])**2
+                        target_face = min(faces, key=face_distance)
+                    else:
+                        target_face = max(faces, key=lambda f: f[2] * f[3])
+
+                    face_center_x = target_face[0] + target_face[2] // 2
+                    face_center_y = target_face[1] + target_face[3] // 2
                     frame_center_x = FRAME_WIDTH // 2
 
-                    # 서보 추적
-                    track_face_with_servo(face_center_x, frame_center_x)
+                    # 추적 중인 얼굴 위치 업데이트
+                    tracked_face_center = (face_center_x, face_center_y)
+                    face_lost_time = 0
+
+                    # 일정 시간 이상 연속 감지되어야 서보 추적
+                    if now_t - face_first_seen_time >= FACE_CONFIRM_SECONDS:
+                        track_face_with_servo(face_center_x, frame_center_x)
 
                     # 얼굴들 표시
                     for (x, y, w, h) in faces:
                         cv2.rectangle(display, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-                    # 가장 큰 얼굴 주변에서 파란 카드 검사
-                    authorized, blue_ratio, roi_box = detect_blue_card(frame, largest_face)
+                    # 추적 대상 얼굴 주변에서 파란 카드 검사
+                    authorized, blue_ratio, roi_box = detect_blue_card(frame, target_face)
                     rx1, ry1, rx2, ry2 = roi_box
 
                     cv2.rectangle(display, (rx1, ry1), (rx2, ry2), (255, 255, 0), 2)
@@ -377,7 +408,11 @@ def camera_thread():
                         save_intruder_frame(display)
 
                 else:
-                    # 경계 모드인데 얼굴이 없으면 LED는 끄고 대기
+                    # 경계 모드인데 얼굴이 없거나 쿨다운 중
+                    face_continuous = False
+                    if tracked_face_center is not None:
+                        tracked_face_center = None
+                        face_lost_time = time.time()
                     green_led.off()
                     red_led.off()
                     auth_state = "NONE"
