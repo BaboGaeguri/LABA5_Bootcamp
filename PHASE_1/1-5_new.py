@@ -47,7 +47,7 @@ current_angle = 90
 servo.angle = current_angle
 
 Kp = 0.06
-DEAD_ZONE = 25
+DEAD_ZONE = 50
 MAX_STEP = 4
 ANGLE_MIN = 10
 ANGLE_MAX = 170
