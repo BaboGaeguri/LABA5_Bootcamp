@@ -3,8 +3,7 @@ import tty
 import termios
 import time
 import RPi.GPIO as GPIO
-import pigpio
-from gpiozero import LED
+from gpiozero import AngularServo, LED
 
 # ===== 핀 설정 =====
 green_led = LED(17)
@@ -16,28 +15,16 @@ GPIO.setup(BUZZER_PIN, GPIO.OUT)
 pwm = GPIO.PWM(BUZZER_PIN, 1000)  # 1000Hz
 buzzer_on = False
 
-# ===== 서보 (gpiozero → pigpio 교체) =====
-# servo = AngularServo(
-#     18,
-#     min_angle=0,
-#     max_angle=180,
-#     min_pulse_width=0.0005,
-#     max_pulse_width=0.0025
-# )
-# servo.angle = current_angle
-
-SERVO_PIN = 18
-pi = pigpio.pi()
-if not pi.connected:
-    print("ERROR: pigpiod 가 실행중이지 않습니다. 'sudo pigpiod' 를 먼저 실행하세요.")
-    exit()
-
-# 각도 → 펄스폭 변환 (0도=500us, 90도=1500us, 180도=2000us)
-def angle_to_pw(angle):
-    return int(500 + (angle / 180.0) * 1500)
+servo = AngularServo(
+    18,
+    min_angle=0,
+    max_angle=180,
+    min_pulse_width=0.0005,
+    max_pulse_width=0.0025
+)
 
 current_angle = 90
-pi.set_servo_pulsewidth(SERVO_PIN, angle_to_pw(current_angle))
+servo.angle = current_angle
 STEP = 10
 ANGLE_MIN = 0
 ANGLE_MAX = 180
@@ -91,20 +78,17 @@ try:
 
         elif key in ('\x1b[D', 'a', 'A'):
             current_angle = clamp(current_angle - STEP, ANGLE_MIN, ANGLE_MAX)
-            # servo.angle = current_angle
-            pi.set_servo_pulsewidth(SERVO_PIN, angle_to_pw(current_angle))
+            servo.angle = current_angle
             print(f"서보: {current_angle:.1f}도          ")
 
         elif key in ('\x1b[C', 'd', 'D'):
             current_angle = clamp(current_angle + STEP, ANGLE_MIN, ANGLE_MAX)
-            # servo.angle = current_angle
-            pi.set_servo_pulsewidth(SERVO_PIN, angle_to_pw(current_angle))
+            servo.angle = current_angle
             print(f"서보: {current_angle:.1f}도          ")
 
         elif key in ('c', 'C'):
             current_angle = 90
-            # servo.angle = current_angle
-            pi.set_servo_pulsewidth(SERVO_PIN, angle_to_pw(current_angle))
+            servo.angle = current_angle
             print(f"서보: 중앙 ({current_angle:.1f}도)          ")
 
         elif key in ('q', 'Q', '\x03'):
@@ -115,7 +99,5 @@ finally:
     red_led.off()
     pwm.stop()
     GPIO.cleanup()
-    # servo.detach()
-    pi.set_servo_pulsewidth(SERVO_PIN, 0)
-    pi.stop()
+    servo.detach()
     print("\n종료.")
