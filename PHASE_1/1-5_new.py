@@ -97,7 +97,7 @@ def camera_thread():
                     error = obj_center_x - center_x
 
                     if abs(error) > DEAD_ZONE:
-                        movement = clamp(error * Kp, -MAX_STEP, MAX_STEP)
+                        movement = clamp(-error * Kp, -MAX_STEP, MAX_STEP)
                         current_angle = clamp(current_angle + movement, ANGLE_MIN, ANGLE_MAX)
                         servo.angle = current_angle
 
