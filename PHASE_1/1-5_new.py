@@ -2,9 +2,9 @@ import cv2
 import time
 import os
 import threading
-import pigpio
 from flask import Flask, Response
 from picamera2 import Picamera2
+from gpiozero import AngularServo
 
 app = Flask(__name__)
 
@@ -16,18 +16,17 @@ if face_cascade.empty():
     print("ERROR: Could not load Haar Cascade.")
     exit()
 
-# ===== 서보 (pigpio) =====
-SERVO_PIN = 18
-pi = pigpio.pi()
-if not pi.connected:
-    print("ERROR: pigpiod 가 실행중이지 않습니다. 'sudo pigpiod' 를 먼저 실행하세요.")
-    exit()
-
-def angle_to_pw(angle):
-    return int(500 + (angle / 180.0) * 1500)
+# ===== 서보 (gpiozero) =====
+servo = AngularServo(
+    18,
+    min_angle=0,
+    max_angle=180,
+    min_pulse_width=0.0005,
+    max_pulse_width=0.0025
+)
 
 current_angle = 90
-pi.set_servo_pulsewidth(SERVO_PIN, angle_to_pw(current_angle))
+servo.angle = current_angle
 
 Kp = 0.06
 DEAD_ZONE = 25
@@ -79,7 +78,7 @@ def camera_thread():
                 if abs(error) > DEAD_ZONE:
                     movement = clamp(error * Kp, -MAX_STEP, MAX_STEP)
                     current_angle = clamp(current_angle + movement, ANGLE_MIN, ANGLE_MAX)
-                    pi.set_servo_pulsewidth(SERVO_PIN, angle_to_pw(current_angle))
+                    servo.angle = current_angle
 
                 print(f"error: {error}  angle: {current_angle:.1f}")
 
@@ -99,8 +98,7 @@ def camera_thread():
 
     finally:
         picam2.stop()
-        pi.set_servo_pulsewidth(SERVO_PIN, 0)
-        pi.stop()
+        servo.detach()
         print("Exited cleanly.")
 
 

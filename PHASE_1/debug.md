@@ -95,23 +95,27 @@
 
 ---
 
-## [2026-03-20] pigpio 적용
+## [2026-03-20] pigpio 적용 시도 및 철회
+
+### 시도
+- `gpiozero AngularServo` 소프트웨어 PWM 불안정 문제로 pigpio 하드웨어 PWM 교체 시도
+- `python3-pigpio` 설치, 소스 빌드 완료
 
 ### 문제
-- `gpiozero AngularServo`는 소프트웨어 PWM → 타이밍 불안정 → 서보 움찔거림
+- `sudo pigpiod -g` 실행 시 아래 에러:
+  ```
+  unknown rev code (d04171)
+  Sorry, this system does not appear to be a raspberry pi.
+  ```
+- 원인: **pigpio는 라즈베리파이 5를 지원하지 않음**
+- 리비전 코드 `d04171` = Raspberry Pi 5
 
-### 해결
-- `pigpio` 하드웨어 PWM으로 교체
-- `python3-pigpio` 설치 (`pigpio` 패키지는 저장소 미지원 → 소스 빌드)
-- `hardware_test.py` 서보 부분 gpiozero → pigpio 교체
-
-```python
-pi = pigpio.pi()
-pi.set_servo_pulsewidth(18, angle_to_pw(angle))  # 500~2000us
-```
-
-### 결과
-- 이전보다 서보 동작 개선됨
+### 결론
+- Pi 5에서 GPIO 라이브러리 지원 현황:
+  - `pigpio` → Pi 4까지만 지원, **Pi 5 미지원**
+  - `lgpio` → Pi 5 전용 후속 라이브러리
+  - `gpiozero` → Pi 5에서 내부적으로 lgpio를 백엔드로 자동 사용
+- **gpiozero로 복귀** (이미 작동 확인된 방식)
 
 ---
 
