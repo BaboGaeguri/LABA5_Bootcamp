@@ -111,8 +111,9 @@ def camera_thread():
                 buzzer_on()
             else:
                 buzzer_off()
-                current_angle = 90
-                servo.angle = current_angle
+                if current_angle != 90:
+                    current_angle = 90
+                    servo.angle = current_angle
 
             cv2.line(display, (center_x, 0), (center_x, HEIGHT), (255, 0, 0), 2)
             cv2.putText(display, f"Angle: {current_angle:.1f} deg", (10, 25),
