@@ -15,7 +15,7 @@ app = Flask(__name__)
 # BLUE_UPPER = (125, 255, 255)
 
 # [주간 설정] 밝기 올라가므로 V 하한 상향, S 하한 상향
-BLUE_LOWER = (105, 150, 120)
+BLUE_LOWER = (105, 180, 120)
 BLUE_UPPER = (125, 255, 255)
 MIN_AREA = 15000  # 카드 크기 이상만 반응
 
