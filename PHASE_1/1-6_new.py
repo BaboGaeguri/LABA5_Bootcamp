@@ -44,17 +44,32 @@ error_history  = deque(maxlen=ERROR_SMOOTH)
 last_servo_t   = 0.0
 
 # ===== 색상 HSV 범위 =====
-BLUE_LOWER  = (105, 180, 80)
+# [야간 설정]
+# BLUE_LOWER  = (105, 180, 80)
+# BLUE_UPPER  = (125, 255, 255)
+# RED_LOWER1  = (0,   120, 80)
+# RED_UPPER1  = (10,  255, 255)
+# RED_LOWER2  = (170, 120, 80)
+# RED_UPPER2  = (180, 255, 255)
+# MIN_AREA    = 15000
+
+# [주간 설정] 밝기 올라가므로 V 하한 상향, S 하한 상향
+BLUE_LOWER  = (105, 150, 120)
 BLUE_UPPER  = (125, 255, 255)
-RED_LOWER1  = (0,   120, 80)
+RED_LOWER1  = (0,   130, 120)
 RED_UPPER1  = (10,  255, 255)
-RED_LOWER2  = (170, 120, 80)
+RED_LOWER2  = (170, 130, 120)
 RED_UPPER2  = (180, 255, 255)
 MIN_AREA    = 15000
 
 # ===== 움직임 감지 파라미터 =====
-MOTION_THRESHOLD  = 30    # 픽셀 diff 임계값
-MOTION_MIN_PIXELS = 3000  # 변화 픽셀 수 최소값
+# [야간 설정]
+# MOTION_THRESHOLD  = 30
+# MOTION_MIN_PIXELS = 3000
+
+# [주간 설정] 밝기 변화가 커서 임계값 상향
+MOTION_THRESHOLD  = 50    # 픽셀 diff 임계값
+MOTION_MIN_PIXELS = 5000  # 변화 픽셀 수 최소값
 STANDBY_TIMEOUT   = 5.0   # 움직임 없으면 대기 모드 복귀 (초)
 
 # ===== 증거 촬영 파라미터 =====

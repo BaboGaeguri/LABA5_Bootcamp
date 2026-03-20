@@ -10,8 +10,12 @@ from gpiozero import AngularServo
 app = Flask(__name__)
 
 # ===== 파란색 HSV 범위 =====
-# 조명에 따라 조정 필요
-BLUE_LOWER = (105, 180, 80)
+# [야간 설정]
+# BLUE_LOWER = (105, 180, 80)
+# BLUE_UPPER = (125, 255, 255)
+
+# [주간 설정] 밝기 올라가므로 V 하한 상향, S 하한 상향
+BLUE_LOWER = (105, 150, 120)
 BLUE_UPPER = (125, 255, 255)
 MIN_AREA = 15000  # 카드 크기 이상만 반응
 
