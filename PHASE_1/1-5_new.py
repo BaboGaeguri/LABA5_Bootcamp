@@ -2,9 +2,10 @@ import cv2
 import time
 import os
 import threading
+import RPi.GPIO as GPIO
 from flask import Flask, Response
 from picamera2 import Picamera2
-from gpiozero import AngularServo, PWMOutputDevice
+from gpiozero import AngularServo
 
 app = Flask(__name__)
 
@@ -19,13 +20,23 @@ BLUE_UPPER = (125, 255, 255)
 MIN_AREA = 15000  # 카드 크기 이상만 반응
 
 # ===== 부저 =====
-buzzer = PWMOutputDevice(22, frequency=1000)
+BUZZER_PIN = 22
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(BUZZER_PIN, GPIO.OUT)
+buzzer_pwm = GPIO.PWM(BUZZER_PIN, 1000)
+buzzer_active = False
 
 def buzzer_on():
-    buzzer.value = 0.5
+    global buzzer_active
+    if not buzzer_active:
+        buzzer_pwm.start(50)
+        buzzer_active = True
 
 def buzzer_off():
-    buzzer.value = 0
+    global buzzer_active
+    if buzzer_active:
+        buzzer_pwm.stop()
+        buzzer_active = False
 
 # ===== 서보 (gpiozero) =====
 servo = AngularServo(
@@ -133,6 +144,7 @@ def camera_thread():
         picam2.stop()
         servo.detach()
         buzzer_off()
+        GPIO.cleanup()
         print("Exited cleanly.")
 
 

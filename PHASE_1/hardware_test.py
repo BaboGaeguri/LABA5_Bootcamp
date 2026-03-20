@@ -2,24 +2,17 @@ import sys
 import tty
 import termios
 import time
-import lgpio
-from gpiozero import AngularServo, LED, Device
+import RPi.GPIO as GPIO
+from gpiozero import AngularServo, LED
 
 # ===== 핀 설정 =====
 green_led = LED(17)
 red_led   = LED(27)
 
-# gpiozero가 이미 열어놓은 lgpio 핸들 재사용 (GPIO busy 방지)
-_lgh = Device.pin_factory._handle
-lgpio.gpio_claim_output(_lgh, 22, 0)
-
-def buzzer_on_fn():
-    lgpio.tx_pwm(_lgh, 22, 1000, 50)
-
-def buzzer_off_fn():
-    lgpio.tx_pwm(_lgh, 22, 0, 0)
-    lgpio.gpio_write(_lgh, 22, 0)
-
+BUZZER_PIN = 22
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(BUZZER_PIN, GPIO.OUT)
+pwm = GPIO.PWM(BUZZER_PIN, 1000)
 buzzer_on = False
 
 servo = AngularServo(
@@ -78,9 +71,9 @@ try:
         elif key in ('b', 'B'):
             buzzer_on = not buzzer_on
             if buzzer_on:
-                buzzer_on_fn()
+                pwm.start(50)
             else:
-                buzzer_off_fn()
+                pwm.stop()
             print(f"부저: {'ON' if buzzer_on else 'OFF'}          ")
 
         elif key in ('\x1b[D', 'a', 'A'):
@@ -104,6 +97,7 @@ try:
 finally:
     green_led.off()
     red_led.off()
-    buzzer_off_fn()
+    pwm.stop()
+    GPIO.cleanup()
     servo.detach()
     print("\n종료.")
