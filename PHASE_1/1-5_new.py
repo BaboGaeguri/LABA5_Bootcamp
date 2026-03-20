@@ -56,7 +56,7 @@ MAX_STEP       = 2
 ANGLE_MIN      = 10
 ANGLE_MAX      = 170
 ERROR_SMOOTH   = 7
-SERVO_INTERVAL = 0.0
+SERVO_INTERVAL = 0.5
 last_servo_t   = 0.0
 
 def clamp(v, lo, hi):
