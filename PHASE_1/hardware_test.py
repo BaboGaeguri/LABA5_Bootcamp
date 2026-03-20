@@ -2,17 +2,13 @@ import sys
 import tty
 import termios
 import time
-import RPi.GPIO as GPIO
-from gpiozero import AngularServo, LED
+from gpiozero import AngularServo, LED, PWMOutputDevice
 
 # ===== 핀 설정 =====
 green_led = LED(17)
 red_led   = LED(27)
 
-BUZZER_PIN = 22
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(BUZZER_PIN, GPIO.OUT)
-pwm = GPIO.PWM(BUZZER_PIN, 1000)  # 1000Hz
+buzzer = PWMOutputDevice(22, frequency=1000)
 buzzer_on = False
 
 servo = AngularServo(
@@ -70,10 +66,7 @@ try:
 
         elif key in ('b', 'B'):
             buzzer_on = not buzzer_on
-            if buzzer_on:
-                pwm.start(50)
-            else:
-                pwm.stop()
+            buzzer.value = 0.5 if buzzer_on else 0
             print(f"부저: {'ON' if buzzer_on else 'OFF'}          ")
 
         elif key in ('\x1b[D', 'a', 'A'):
@@ -97,7 +90,6 @@ try:
 finally:
     green_led.off()
     red_led.off()
-    pwm.stop()
-    GPIO.cleanup()
+    buzzer.value = 0
     servo.detach()
     print("\n종료.")
