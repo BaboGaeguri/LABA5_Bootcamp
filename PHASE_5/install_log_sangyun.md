@@ -170,4 +170,12 @@ Connect the controller board to the 'shoulder_pan' motor only and press enter.
 # → 1번 모터(shoulder_pan) 단독 연결 후 read 시도 → 성공! (위치값: 3984)
 
 # 결론: 1번 모터 단독 통신은 정상. 데이지체인 연결 시 문제 발생.
-# 다음 단계: 모터를 하나씩 추가하며 문제 발생 지점 파악 예정
+# 다음 단계: 모터를 하나씩 추가하며 문제 발생 지점 파악
+
+# 2번 모터(shoulder_lift) 추가 연결 → Incorrect status packet (1번도 깨짐)
+# 2번 모터 단독 연결 → There is no status packet (아예 응답 없음)
+# 2번 모터를 ID=1로 스캔 → 값: 650 (응답 성공!)
+# 결론: 2번 모터의 ID가 1로 잘못 설정되어 있음
+#       → 1번+2번 동시 연결 시 ID=1 충돌로 패킷 손상 발생
+#       → 나머지 모터들도 ID가 잘못됐을 가능성 있음
+# 조치: 팔로워 6개 모터 ID 전체 재설정 진행
