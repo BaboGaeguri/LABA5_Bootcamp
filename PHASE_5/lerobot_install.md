@@ -253,4 +253,74 @@ lerobot-teleoperate \
     --teleop.port=/dev/ttyACM1 \
     --teleop.id=my_leader
 ```
---
+
+---
+
+## 드라이버 재연결 후 텔레옵 재개 (빠른 실행)
+
+> 모터 ID 설정과 캘리브레이션은 **최초 1회만** 하면 됨. 드라이버를 뽑았다 꽂아도 다시 할 필요 없음.
+> 캘리브레이션 파일은 `~/.cache/huggingface/lerobot/calibration/` 에 영구 저장되어 있음.
+
+### 1단계. 하드웨어 연결 확인
+
+드라이버 보드 2개 모두:
+- **전원 어댑터** 연결 (팔로워 Pro: 12V / 리더: 5V)
+- **USB 케이블** PC에 연결
+
+> 전원 어댑터 없이 USB만 연결하면 포트가 인식되지 않음.
+
+### 2단계. 포트 식별
+
+두 드라이버를 **모두 연결한 상태**에서:
+
+```bash
+conda activate lerobot
+cd ~/lerobot
+
+lerobot-find-port
+```
+
+실행 후 **팔로워 드라이버 USB만 뽑고** Enter → 사라진 포트가 팔로워, 남은 포트가 리더.
+
+```
+# 예시 출력
+Ports before: ['/dev/ttyACM0', '/dev/ttyACM1']
+Ports after:  ['/dev/ttyACM0']
+→ 팔로워: /dev/ttyACM1, 리더: /dev/ttyACM0
+```
+
+> 포트 번호는 연결 순서에 따라 매번 바뀜. 반드시 매번 확인.
+
+뽑았던 팔로워 USB를 다시 꽂은 후 진행.
+
+### 3단계. 포트 권한 부여
+
+```bash
+sudo chmod 666 /dev/ttyACM0
+sudo chmod 666 /dev/ttyACM1
+```
+
+### 4단계. 텔레옵 실행
+
+아래 명령에서 `--robot.port`와 `--teleop.port`를 2단계에서 확인한 포트로 교체:
+
+```bash
+lerobot-teleoperate \
+    --robot.type=so101_follower \
+    --robot.port=/dev/ttyACM1 \
+    --robot.id=my_follower \
+    --teleop.type=so101_leader \
+    --teleop.port=/dev/ttyACM0 \
+    --teleop.id=my_leader
+```
+
+---
+
+### 트러블슈팅
+
+| 증상 | 원인 | 해결 |
+|---|---|---|
+| `ls /dev/ttyACM*` 아무것도 없음 | 전원 어댑터 미연결 | 전원 어댑터 확인 후 재연결 |
+| `PermissionError` | 포트 권한 없음 | `sudo chmod 666 /dev/ttyACM*` |
+| `Missing motor IDs` | 잘못된 포트에 연결 | `lerobot-find-port`로 포트 재확인 |
+| 팔로워가 리더 움직임 안 따라옴 | 포트 반대로 입력 | `--robot.port`와 `--teleop.port` 교체 |
