@@ -179,3 +179,43 @@ Connect the controller board to the 'shoulder_pan' motor only and press enter.
 #       → 1번+2번 동시 연결 시 ID=1 충돌로 패킷 손상 발생
 #       → 나머지 모터들도 ID가 잘못됐을 가능성 있음
 # 조치: 팔로워 6개 모터 ID 전체 재설정 진행
+
+============================== 팔로워 ID 재설정 ==============================
+
+# lerobot-setup-motors로 팔로워 6개 모터 ID 재설정 완료
+# gripper(6) → wrist_roll(5) → wrist_flex(4) → elbow_flex(3) → shoulder_lift(2) → shoulder_pan(1)
+
+# 재설정 후 6개 데이지체인 통신 테스트 → 전부 정상
+# shoulder_pan(1): 4079, shoulder_lift(2): 3785, elbow_flex(3): 221
+# wrist_flex(4): 1297, wrist_roll(5): 1229, gripper(6): 434
+
+============================== 팔로워 캘리브레이션 ==============================
+
+(lerobot) babogaeguri@babogaeguri-950QED:~/lerobot$ lerobot-calibrate \
+    --robot.type=so101_follower \
+    --robot.port=/dev/ttyACM0 \
+    --robot.id=my_follower
+# 캘리브레이션 완료
+# 저장 경로: ~/.cache/huggingface/lerobot/calibration/robots/so_follower/my_follower.json
+
+============================== 리더 캘리브레이션 ==============================
+
+# 리더 6개 모터 통신 테스트 → 전부 정상 (ID 재설정 불필요)
+(lerobot) babogaeguri@babogaeguri-950QED:~/lerobot$ lerobot-calibrate \
+    --teleop.type=so101_leader \
+    --teleop.port=/dev/ttyACM0 \
+    --teleop.id=my_leader
+# 캘리브레이션 완료
+# 저장 경로: ~/.cache/huggingface/lerobot/calibration/teleoperators/so_leader/my_leader.json
+
+============================== 텔레옵 실행 성공 ==============================
+
+# 팔로워: /dev/ttyACM1, 리더: /dev/ttyACM0
+(lerobot) babogaeguri@babogaeguri-950QED:~/lerobot$ lerobot-teleoperate \
+    --robot.type=so101_follower \
+    --robot.port=/dev/ttyACM1 \
+    --robot.id=my_follower \
+    --teleop.type=so101_leader \
+    --teleop.port=/dev/ttyACM0 \
+    --teleop.id=my_leader
+# 텔레옵 정상 동작 확인!
