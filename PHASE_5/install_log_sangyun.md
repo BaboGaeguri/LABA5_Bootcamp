@@ -155,6 +155,19 @@ Connect the controller board to the 'shoulder_pan' motor only and press enter.
 #   - so101_follower vs so101_pro 차이 확인 → 소프트웨어적으로 동일
 #   - ID 설정 로그 확인 → 정상 완료, 중간 끊김 없음
 
-# 해결 시도: dialout 그룹에 유저 추가 (영구 포트 권한 부여)
+# 해결 시도 1: dialout 그룹에 유저 추가 (영구 포트 권한 부여)
 (lerobot) babogaeguri@babogaeguri-950QED:~/lerobot$ sudo usermod -aG dialout babogaeguri
-# → 재부팅 후 chmod 없이 캘리브레이션 재시도 예정
+# → 재부팅 후 chmod 없이 캘리브레이션 재시도
+
+============================== 재부팅 후 캘리브레이션 재시도 ==============================
+
+# chmod 없이 캘리브레이션 시도 → 동일한 에러 (Full found motor list: {})
+# 포트 권한 문제가 아님이 확정됨
+
+# Python으로 직접 통신 테스트
+# → handshake=False로 포트 열기 성공 (포트/권한 완전 정상)
+# → 6개 데이지체인 상태에서 read 시도 → Incorrect status packet (패킷 손상)
+# → 1번 모터(shoulder_pan) 단독 연결 후 read 시도 → 성공! (위치값: 3984)
+
+# 결론: 1번 모터 단독 통신은 정상. 데이지체인 연결 시 문제 발생.
+# 다음 단계: 모터를 하나씩 추가하며 문제 발생 지점 파악 예정
