@@ -1,0 +1,15 @@
+{
+  "task_id": "req_001",
+  "action_type": "pick_and_place",
+  "target": {
+    "object_name": "water_bottle",
+    "description": "blue plastic bottle"
+  },
+  "locations": {
+    "source": "living_room_table",
+    "destination": "user_desk"
+  },
+  "options": {
+    "return_to_origin": true 
+  }
+}
