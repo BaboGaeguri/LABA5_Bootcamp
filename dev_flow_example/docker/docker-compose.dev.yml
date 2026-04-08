@@ -1,0 +1,8 @@
+services:
+  orin:
+    build:
+      context: ..          # Dockerfile이 있는 위치 (dev_flow_example/)
+      dockerfile: Dockerfile
+    image: breakout-game:dev
+    environment:
+      - CONFIG_PATH=configs/dev.yaml   # dev 모드로 실행
