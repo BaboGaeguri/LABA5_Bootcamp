@@ -1,0 +1,21 @@
+# 배포 환경 — 실제 하드웨어
+# pygame 화면 + 실제 키보드로 동작한다.
+mode: prod
+
+display:
+  type: real          # Screen: pygame 실제 화면
+  width: 800
+  height: 600
+
+input:
+  type: real          # KeyboardInput: 실제 키보드 (← →)
+  speed: 8
+
+game:
+  ball_speed: 6
+  paddle_width: 100
+  block_rows: 4
+  block_cols: 10
+
+score:
+  type: real          # ROS2 /game/score 토픽으로 NUC에 발행

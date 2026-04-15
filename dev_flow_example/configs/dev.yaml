@@ -1,0 +1,24 @@
+# 개발 환경 — Mock 하드웨어
+# pygame 없이 터미널에서만 동작한다.
+mode: dev
+
+display:
+  type: mock          # MockScreen: 터미널에 상태 출력
+  width: 800
+  height: 600
+
+input:
+  type: mock          # MockInput: 공을 자동으로 추적
+  speed: 7
+
+game:
+  ball_speed: 5
+  paddle_width: 100
+  block_rows: 3
+  block_cols: 8
+
+score:
+  type: mock          # 로컬 터미널 출력만 (ROS2 발행 없음)
+
+dev:
+  max_frames: 30000   # 최대 30000프레임 후 강제 종료
