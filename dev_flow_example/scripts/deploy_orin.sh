@@ -6,7 +6,7 @@
 set -e  # 에러 발생 시 즉시 중단
 
 ORIN_IP=$1
-ORIN_USER="babogaeguri"
+ORIN_USER="laba"
 REMOTE_DIR="/home/$ORIN_USER/breakout"
 LOCAL_DIR="$(cd "$(dirname "$0")/.." && pwd)"  # dev_flow_example/ 절대경로
 

@@ -8,7 +8,8 @@ set -o pipefail
 
 ORIN_IP="${1:-}"
 NUC_IP="${2:-}"
-REMOTE_USER="${3:-babogaeguri}"
+REMOTE_USER="${3:-laba}"
+ORIN_USER="laba"
 
 PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
@@ -81,6 +82,17 @@ check_ssh() {
   fi
 }
 
+check_ssh_jump() {
+  local ip="$1"
+  local label="$2"
+  if ssh -o BatchMode=yes -o ConnectTimeout=5 -J "${ORIN_USER}@${ORIN_IP}" "${REMOTE_USER}@${ip}" "echo ok" >/dev/null 2>&1; then
+    pass "SSH 무비번 접속 확인 (점프): ${label}"
+  else
+    fail "SSH 무비번 접속 실패 (점프): ${label} (${REMOTE_USER}@${ip} via ${ORIN_IP})"
+    echo "       해결: ssh-copy-id -J ${ORIN_USER}@${ORIN_IP} ${REMOTE_USER}@${ip}"
+  fi
+}
+
 check_remote_orin() {
   local ip="$1"
   local target="${REMOTE_USER}@${ip}"
@@ -109,21 +121,21 @@ check_remote_orin() {
 
 check_remote_nuc() {
   local ip="$1"
-  local target="${REMOTE_USER}@${ip}"
+  local jump="-J ${ORIN_USER}@${ORIN_IP}"
 
-  if ssh -o BatchMode=yes -o ConnectTimeout=5 "$target" "test -d /opt/ros/humble" >/dev/null 2>&1; then
+  if ssh -o BatchMode=yes -o ConnectTimeout=5 $jump "${REMOTE_USER}@${ip}" "test -d /opt/ros/humble" >/dev/null 2>&1; then
     pass "NUC ROS2 Humble 경로 확인 (/opt/ros/humble)"
   else
     fail "NUC ROS2 Humble 경로 없음 (/opt/ros/humble)"
   fi
 
-  if ssh -o BatchMode=yes -o ConnectTimeout=5 "$target" "bash -lc 'source /opt/ros/humble/setup.bash >/dev/null 2>&1 && command -v ros2 >/dev/null'" >/dev/null 2>&1; then
+  if ssh -o BatchMode=yes -o ConnectTimeout=5 $jump "${REMOTE_USER}@${ip}" "bash -lc 'source /opt/ros/humble/setup.bash >/dev/null 2>&1 && command -v ros2 >/dev/null'" >/dev/null 2>&1; then
     pass "NUC ros2 명령어 확인"
   else
     fail "NUC ros2 명령어 사용 불가"
   fi
 
-  if ssh -o BatchMode=yes -o ConnectTimeout=5 "$target" "command -v colcon >/dev/null" >/dev/null 2>&1; then
+  if ssh -o BatchMode=yes -o ConnectTimeout=5 $jump "${REMOTE_USER}@${ip}" "command -v colcon >/dev/null" >/dev/null 2>&1; then
     pass "NUC colcon 설치 확인"
   else
     warn "NUC colcon 미설치 가능성"
@@ -174,7 +186,7 @@ check_ping "$NUC_IP" "NUC"
 echo
 echo "[4/5] SSH 점검"
 check_ssh "$ORIN_IP" "Orin"
-check_ssh "$NUC_IP" "NUC"
+check_ssh_jump "$NUC_IP" "NUC"
 
 echo
 echo "[5/5] 원격 런타임 점검"
