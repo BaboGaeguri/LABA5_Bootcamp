@@ -1,29 +1,41 @@
 # Dev Network 설정 (WiFi SSH)
 
 > 작성일: 2026-04-21  
-> 목적: devPC ↔ Jetson Orin ↔ DGX Spark 간 WiFi SSH 연결 설정 기록
+> 목적: devPC ↔ Jetson Orin, devPC ↔ DGX Spark 간 WiFi SSH 연결 설정 기록
 
 ---
 
 ## 1) 장비 개요
 
-| 장비 | 역할 | OS | 호스트명 |
-|---|---|---|---|
-| devPC | 코드 정리/문서화/배포 관리 | Ubuntu 22.04 | `babogaeguri-950QED` |
-| Jetson Orin Nano Super | 실행/검증 (SO-ARM 연결) | Ubuntu 22.04 (L4T R36.5.0) | 확인 필요 |
-| DGX Spark | 학습/파인튜닝 전용 | Ubuntu (확인 필요) | 확인 필요 |
+| 장비 | 역할 | OS | 호스트명 | 유저명 |
+|---|---|---|---|---|
+| devPC | 코드 정리/문서화/배포 관리 | Ubuntu 22.04 | `babogaeguri-950QED` | `babogaeguri` |
+| Jetson Orin Nano Super | 실행/검증 (SO-ARM 연결) | Ubuntu 22.04 (L4T R36.5.0) | `ubuntu` | `laba` |
+| DGX Spark | 학습/파인튜닝 전용 | Ubuntu | `spark-8434` | `laba` |
 
 ---
 
 ## 2) 네트워크 정보 수집
 
-| 장비 | WiFi IP | 비고 |
-|---|---|---|
-| devPC | — | 확인 후 기재 |
-| Jetson Orin | — | 확인 후 기재 |
-| DGX Spark | — | 확인 후 기재 |
+| 장비 | WiFi IP (예시) | 서브넷 게이트웨이 | 비고 |
+|---|---|---|---|
+| devPC | 동적 | `172.16.141.254` | DHCP, 변동 있음 |
+| Jetson Orin | `172.16.138.215` | `172.16.138.254` | DHCP, 변동 있음. 2026-04-22 확인 |
+| DGX Spark | WiFi `172.16.128.93` / LAN `192.168.0.7` | WiFi `172.16.128.254` / LAN `192.168.0.1` | DHCP, 변동 있음. 2026-04-22 확인 |
 
-> **접속 방식**: 학교 WiFi 환경이므로 IP 고정이 불가능하다. **mDNS(hostname.local) 방식**으로 접속한다.
+> **접속 방식 결정 배경**
+>
+> devPC가 Orin에 접속하려면 Orin의 IP를 알아야 한다. 학교 DHCP 환경에서 이를 해결하는 방법은 세 가지이며, 각각 아래와 같은 이유로 채택/기각되었다.
+>
+> | 방법 | 원리 | 오늘 환경 결과 |
+> |---|---|---|
+> | **공유기 DHCP 예약** | Orin MAC주소에 IP 고정 배정 | 학교 공유기 접근 불가 → 기각 |
+> | **mDNS (`ubuntu.local`)** | Orin이 네트워크에 자신의 hostname 브로드캐스트 → devPC가 IP 자동 파악 | devPC·Orin이 다른 서브넷에 배정되어 브로드캐스트가 닿지 않음 → 기각 |
+> | **IP 직접 지정** | 현재 IP를 수동 확인 후 `~/.ssh/config`에 기재 | 현재 동작 중 → **채택** |
+>
+> 공유기 DHCP 예약이 가능하다면 가장 안정적이다. 학교 통신처에 Orin의 MAC주소를 제출하고 예약을 요청하는 것이 장기적으로 권장된다.
+>
+> 현재 학교 DHCP가 MAC 기반으로 같은 IP를 재배정하는 것으로 보이나(soft 고정), 보장되지 않으므로 연결 실패 시 IP 변경 여부를 먼저 확인한다.
 
 ---
 
@@ -33,8 +45,13 @@
 - `openssh-server` 설치됨
 - `ssh.service`: `active`, `enabled`
 - `0.0.0.0:22`, `[::]:22` 리슨 확인 → 별도 설정 불필요
+- `avahi-daemon`: `active`, `enabled` (단, 서브넷 분리로 mDNS 사용 불가)
 
-### DGX Spark (확인 필요)
+### DGX Spark (확인됨)
+- `openssh-server` 설치됨
+- `ssh.service`: `active`, `running` (TriggeredBy: ssh.socket)
+- `0.0.0.0:22`, `[::]:22` 리슨 확인 → 별도 설정 불필요
+- `avahi-daemon`: 미확인 (mDNS 사용 계획 없으므로 불필요)
 
 ---
 
@@ -52,12 +69,14 @@ devPC의 `~/.ssh/config`에 Orin / DGX Spark 항목 추가:
 | 항목 | Orin | DGX Spark |
 |---|---|---|
 | Host alias | `orin` | `dgx` |
-| HostName | `<orin-hostname>.local` | `<dgx-hostname>.local` |
-| User | `babogaeguri` | 확인 후 기재 |
-| IdentityFile | `~/.ssh/id_ed25519` | `~/.ssh/id_ed25519` |
-| ServerAliveInterval | `30` | `30` |
-| ServerAliveCountMax | `5` | `5` |
+| HostName | Orin의 현재 IP 직접 기재 | 확인 후 기재 |
+| User | `laba` | 확인 후 기재 |
+| Port | `22` | `22` |
+| IdentityFile | `~/.ssh/id_ed25519` (설정 시) | `~/.ssh/id_ed25519` |
+| ServerAliveInterval | `30` (권장) | `30` |
+| ServerAliveCountMax | `5` (권장) | `5` |
 
+> mDNS 불가 환경이므로 HostName에 IP를 직접 기재한다. IP 변경 시 수동 업데이트 필요.  
 > `ServerAliveInterval` / `ServerAliveCountMax`: WiFi 환경에서 idle 세션 끊김 방지
 
 ---
@@ -73,41 +92,57 @@ devPC의 `~/.ssh/config`에 Orin / DGX Spark 항목 추가:
 
 | 장비 | Remote 워크스페이스 경로 |
 |---|---|
-| Orin | `/home/babogaeguri/lerobot` |
-| DGX Spark | 확인 후 기재 |
+| Orin | `/home/laba` (확정 후 업데이트) |
+| DGX Spark | `/home/laba` (확정 후 업데이트) |
 
 ---
 
-## 7) 파일 전송 (devPC ↔ Orin/DGX)
+## 7) HY-WiFi 연결 방법 (WPA2 Enterprise)
 
-- 소규모: `scp -r`
-- 대용량/증분: `rsync -avz --progress` 권장
+학교 WiFi(HY-WiFi)는 기업용 WPA2 인증을 사용하므로 일반 비밀번호 입력이 아닌 아래 설정이 필요하다.  
+GUI(NetworkManager) 기준으로 설정한다.
 
----
-
-## 8) 포트 포워딩 (Jupyter 등 원격 UI 접근)
-
-- Orin Jupyter → devPC `localhost:8888`로 터널링
-- DGX Spark Jupyter → devPC `localhost:8889`로 터널링
-- VS Code Remote-SSH 연결 시 포트 포워딩 탭에서 자동 처리 가능
-
----
-
-## 9) 자주 쓰는 원격 명령
-
-| 목적 | 명령 |
+| 항목 | 값 |
 |---|---|
-| Orin GPU 상태 | `ssh orin "tegrastats --interval 1000"` |
-| Orin nvpmodel 확인 | `ssh orin "sudo nvpmodel -q"` |
-| DGX GPU 상태 | `ssh dgx "nvidia-smi"` |
+| SSID | `HY-WiFi` |
+| Wi-Fi security | 기업용 WPA 또는 WPA2 |
+| Authentication | 보호되는 EAP (PEAP) |
+| Anonymous identity | (비워둠) |
+| CA certificate | (없음), CA 인증서 불필요 체크 |
+| PEAP version | 자동 |
+| Inner authentication | MSCHAPv2 |
+| Username | 학교 포털 아이디 |
+| Password | 학교 포털 비밀번호 |
+
+> DGX Spark는 초기 WiFi 어댑터(`wlP9s9`)가 비활성화 상태이므로, GUI 연결 전 `nmcli radio wifi on`으로 활성화 필요.
+>
+> **DGX 라우팅 설정**: DGX는 LAN(`enP7s7`, `192.168.0.x`)과 WiFi(`wlP9s9`, `172.16.128.x`)가 동시에 연결되어 있으며, 기본 라우트가 LAN으로 잡혀 있어 WiFi 쪽에서 접속하면 패킷이 LAN으로 나가 통신 불가 상태가 된다. 이를 해결하기 위해 `172.16.0.0/16` 대역(학교 WiFi 장비들)만 WiFi 게이트웨이로 보내는 라우트를 추가하였다. 이 설정은 HY-WiFi 연결 프로파일에 영구 저장되어 있으므로 재연결 시에도 자동 적용된다. LAN을 통한 팀원의 SSH 접속에는 영향 없이 동시 사용 가능하다.
 
 ---
 
-## 10) 확인 필요 항목
+## 8) 시연 체크리스트
 
-- [ ] Orin 호스트명 확인 (`hostname`) → `<orin-hostname>.local`로 접속 테스트
-- [ ] devPC에서 `avahi-daemon` 설치/동작 확인
-- [ ] Orin에서 `avahi-daemon` 설치/동작 확인
-- [ ] `ssh babogaeguri@<orin-hostname>.local` 접속 성공 확인
-- [ ] DGX Spark 호스트명, 유저명 확인 후 동일 방식 적용
-- [ ] 같은 WiFi AP에 3대 모두 연결 가능한지 확인 (공유기 AP isolation 비활성화 여부)
+시연장이 평소 사용 WiFi와 다를 경우 IP가 바뀔 수 있으므로 아래를 순서대로 확인한다.
+
+- [ ] 시연장 WiFi에 devPC·Orin·DGX 모두 연결
+- [ ] Orin에서 현재 WiFi IP 확인
+- [ ] DGX에서 현재 WiFi IP 확인
+- [ ] devPC `~/.ssh/config`의 Orin·DGX HostName을 확인된 IP로 업데이트
+- [ ] `ssh orin` / `ssh dgx` 접속 테스트
+- [ ] (장기) 학교 통신처에 Orin·DGX MAC주소 제출 → DHCP 예약 요청
+
+---
+
+## 9) 확인 필요 항목
+
+- [x] Orin 호스트명 확인 → `ubuntu`, 유저명 `laba`
+- [x] devPC `avahi-daemon` 동작 확인 (active)
+- [x] Orin `avahi-daemon` 동작 확인 (active)
+- [x] devPC ↔ Orin SSH 접속 성공 확인 (IP 직접 방식, VS Code Remote-SSH)
+- [x] SSH 키 기반 인증 설정 (ed25519 키 생성 후 Orin·DGX 배포 완료, 비밀번호 없이 접속 확인)
+- [x] `~/.ssh/config`에 `ServerAliveInterval 30` / `ServerAliveCountMax 5` 추가 완료
+- [x] DGX Spark 호스트명(`spark-8434`), 유저명(`laba`) 확인
+- [x] DGX Spark WiFi IP 확인(`172.16.128.93`) 후 `~/.ssh/config` HostName 업데이트
+- [x] DGX 라우팅 설정 (LAN/WiFi 동시 연결 환경에서 `172.16.0.0/16` → WiFi 라우트 추가, nmcli 영구 저장)
+- [x] devPC ↔ DGX SSH 접속 성공 확인
+- [x] Orin·DGX IP 변경 시 `~/.ssh/config` HostName 업데이트 절차 숙지 (섹션 8 시연 체크리스트 참고)

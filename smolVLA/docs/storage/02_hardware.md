@@ -42,19 +42,19 @@
 
 ## 4) DGX Spark 실측
 
-> **실측 필요**
+> 스냅샷: `devices_snapshot/dgx_spark_env_snapshot_2026-04-22_0043.txt`
 
 | 항목 | 실측값 | 비고 |
 |---|---|---|
-| 호스트명 | — | 확인 필요 |
-| OS | — | 확인 필요 |
-| 커널 | — | 확인 필요 |
-| CPU | — | 확인 필요 |
-| 메모리 | — | 확인 필요 |
-| GPU 모델 | — | 확인 필요 |
-| GPU 메모리 | — | 확인 필요 |
-| GPU 드라이버 | — | 확인 필요 |
-| 저장장치 | — | 확인 필요 |
+| 호스트명 | `spark-8434` | |
+| OS | `Ubuntu 24.04.4 LTS` | |
+| 커널 | `6.17.0-1014-nvidia` | |
+| CPU | `aarch64` 20코어 | NUMA 1노드, Max 3900 / 2808 MHz (클러스터별) |
+| 메모리 | `121Gi` | 가용 약 110Gi (스냅샷 시점) |
+| GPU 모델 | `NVIDIA GB10` | Grace Blackwell |
+| GPU 메모리 | Unified Memory | nvidia-smi에서 별도 VRAM 값 미제공 |
+| GPU 드라이버 | `580.142` | CUDA 13.0 지원 |
+| 저장장치 | NVMe `3.7T` | SAMSUNG MZALC4T0HBL1-00B07, 사용 215G / 3.7T |
 
 ---
 
