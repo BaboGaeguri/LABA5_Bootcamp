@@ -7,6 +7,7 @@
 
 - 개발 PC: Ubuntu 환경 사용 중
 - 엣지 장치: `Jetson Orin Nano Super Developer Kit`
+- 학습/파인튜닝 서버: `NVIDIA DGX Spark`
 
 ## 2) devPC 사양 확인 방법 및 실측
 
@@ -39,7 +40,25 @@
 - 메모:
   - 외장 SSD 별도 장치는 스냅샷 시점에서 식별되지 않음 (`/dev/sdX` 또는 추가 `nvmeXnY` 미검출)
 
-## 4) SO-ARM 핵심 부품 (BOM 기준)
+## 4) DGX Spark 실측
+
+> **실측 필요**
+
+| 항목 | 실측값 | 비고 |
+|---|---|---|
+| 호스트명 | — | 확인 필요 |
+| OS | — | 확인 필요 |
+| 커널 | — | 확인 필요 |
+| CPU | — | 확인 필요 |
+| 메모리 | — | 확인 필요 |
+| GPU 모델 | — | 확인 필요 |
+| GPU 메모리 | — | 확인 필요 |
+| GPU 드라이버 | — | 확인 필요 |
+| 저장장치 | — | 확인 필요 |
+
+---
+
+## 5) SO-ARM 핵심 부품 (BOM 기준)
 
 - 모터 계열: `Feetech STS3215`
 
@@ -53,7 +72,7 @@
 leader + follower(현재 보유 1쌍) 합계:
 - `C001 x7`, `C044 x2`, `C046 x3`
 
-## 5) 모터 드라이버 보드 / 케이블
+## 6) 모터 드라이버 보드 / 케이블
 
 - 모터 드라이버(컨트롤 보드):
   - `Serial Bus Servo Driver Board, for ST/SC Series Serial Bus Servos`
@@ -66,7 +85,7 @@ leader + follower(현재 보유 1쌍) 합계:
   - 상품 예시: `etguuds USB A to USB C Cable 6.6ft, 2-Pack, 3A`
   - ASIN 예시: `B0B8NWLLW2`
 
-## 6) 로봇 구성 수량
+## 7) 로봇 구성 수량
 
 - Follower arm: 1대
 - Leader arm: 1대

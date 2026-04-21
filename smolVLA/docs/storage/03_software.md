@@ -24,20 +24,14 @@
 - GPU 드라이버: `540.5.0`
 - nvpmodel 현재 모드: `25W` (mode id `1`)
 
-## 3) 원격 접속(SSH) 상태
-
-- `openssh-server` 설치됨
-- `ssh.service`: `active`, `enabled`
-- `0.0.0.0:22`, `[::]:22` 리슨 확인
-
-## 4) 컨테이너/ML 런타임 상태
+## 3) 컨테이너/ML 런타임 상태
 
 - Docker 실행 중 컨테이너: 없음 (스냅샷 시점)
 - PyTorch 설치 방식: 미확정
   - `python3 -c 'import torch ...'` 출력이 스냅샷에 기록되지 않음
   - 추가 확인 필요: `python3 -m pip show torch`
 
-## 5) 노트북 의존성 실측 결과 (기록용)
+## 4) 노트북 의존성 실측 결과 (기록용)
 
 - 점검일: `2026-04-21`
 - 환경명: `lerobot` (conda)
@@ -60,7 +54,7 @@
 - 현재 실행 환경 Python은 `3.10.20`이며, 문서 상 요구사항(`3.12`)과 불일치가 있어 추후 정리 필요.
 - `transformers`가 `pip show` 기준 미설치 상태이므로 smolVLA 실행 전 재확인/설치 필요.
 
-## 6) 추가 확인 필요 항목
+## 5) 추가 확인 필요 항목
 
 - [ ] PyTorch 설치 방식 확정 (NVIDIA wheel vs container)
 - [ ] 학습 PC와 Orin 간 모델 반입/실행 절차 확정
