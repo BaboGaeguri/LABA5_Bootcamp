@@ -827,6 +827,7 @@
     </model>
 
 <!-- 빨간 표지판 -->
+<!--
     <model name="sign_red_1">
       <static>true</static>
       <pose>-3.7500 10.0000 0.5000 0 0 0</pose>
@@ -859,8 +860,7 @@
         </visual>
       </link>
     </model>
-    
-    <!--
+
     <model name="sign_red_3">
       <static>true</static>
       <pose>7.2500 5.8000 0.8 0 0 0</pose>
