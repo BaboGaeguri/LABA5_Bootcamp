@@ -26,8 +26,14 @@ echo "[setup] Python:       $($PYTHON --version)"
 if [ -d "$VENV_DIR" ]; then
     echo "[setup] 기존 venv 발견 — 재사용합니다. 완전히 새로 만들려면 .venv 디렉토리를 삭제 후 재실행하세요."
 else
-    "$PYTHON" -m venv "$VENV_DIR"
-    echo "[setup] venv 생성 완료"
+    if "$PYTHON" -m venv "$VENV_DIR"; then
+        echo "[setup] venv 생성 완료"
+    else
+        echo "[setup] python -m venv 실패. python3-venv 미설치 환경으로 판단되어 virtualenv fallback을 시도합니다."
+        "$PYTHON" -m pip install --user --quiet virtualenv
+        "$PYTHON" -m virtualenv "$VENV_DIR"
+        echo "[setup] virtualenv 생성 완료"
+    fi
 fi
 
 source "${VENV_DIR}/bin/activate"
@@ -38,8 +44,8 @@ pip install --upgrade pip --quiet
 # pip이 이미 설치된 torch를 재사용한다.
 NVIDIA_INDEX="https://developer.download.nvidia.com/compute/redist/jp/v62/"
 
-echo "[setup] PyTorch 설치 중 (NVIDIA JetPack 6.2 인덱스 사용)..."
-pip install torch torchvision \
+echo "[setup] PyTorch 설치 중 (NVIDIA JetPack 6.2 인덱스 사용, torch<2.7 고정)..."
+pip install "torch>=2.5,<2.7" "torchvision>=0.20.0,<0.22.0" \
     --extra-index-url "$NVIDIA_INDEX" \
     --quiet
 

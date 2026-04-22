@@ -9,9 +9,9 @@ description = "LeRobot curated subset for Jetson Orin (smolVLA + SO-100)"
 requires-python = ">=3.10"
 
 dependencies = [
-    # torch/torchvision: 상한 없음 — NVIDIA JetPack aarch64 wheel 버전에 맞춤
-    "torch>=2.5",
-    "torchvision>=0.20.0",
+    # JetPack 6.x(CUDA 12.x)와 호환되는 범위로 고정해서 cu130 계열 업그레이드 방지
+    "torch>=2.5,<2.7",
+    "torchvision>=0.20.0,<0.22.0",
     "numpy>=2.0.0,<2.3.0",
     "opencv-python-headless>=4.9.0,<4.14.0",
     "Pillow>=10.0.0,<13.0.0",

@@ -21,13 +21,14 @@ smolVLA/
 │       ├── 02_hardware.md
 │       ├── 03_software.md
 │       ├── 04_devnetwork.md
+│       ├── check_update_diff.sh
 │       ├── collect_snapshot.sh
 │       ├── run_snapshots.sh
 │       └── devices_snapshot/
 ├── lerobot/                             # ⚠️ upstream submodule — 절대 수정 금지
 │                                        #   (huggingface/lerobot 원본)
 └── orin/                                # Jetson Orin 배포 패키지
-    ├── pyproject.toml                   # Orin용 (torch>=2.5, smolvla extras)
+    ├── pyproject.toml                   # Orin용 (torch>=2.5,<2.7, smolvla extras)
     ├── lerobot/                         # curated 추론 필수 모듈 (110 files)
     │   ├── cameras/{opencv,realsense,zmq}
     │   ├── configs/
@@ -117,6 +118,7 @@ source ~/smolvla/.venv/bin/activate
 | `02_hardware.md` | 하드웨어 실측값 (devPC / Orin / DGX Spark / SO-ARM BOM) |
 | `03_software.md` | 소프트웨어 실측값 (OS, CUDA, 패키지 버전) |
 | `04_devnetwork.md` | devPC ↔ Orin ↔ DGX Spark WiFi SSH 연결 설정 |
+| `check_update_diff.sh` | 업데이트 당일 변경사항 요약 비교 스크립트 (`HEAD@{1} -> HEAD`) |
 | `collect_snapshot.sh` | Orin/DGX 환경 정보 수집 payload (원격 실행용) |
 | `run_snapshots.sh` | 두 디바이스 동시 수집 후 `devices_snapshot/` 저장 |
 
@@ -131,4 +133,5 @@ source ~/smolvla/.venv/bin/activate
 
 - 디바이스 스냅샷은 `docs/storage/devices_snapshot/`에 누적합니다.
 - 스냅샷 수집: `bash docs/storage/run_snapshots.sh` (SSH alias `orin` / `dgx` 필요)
+- 업데이트 비교 요약: `bash docs/storage/check_update_diff.sh`
 - 구조가 변경되면 이 README도 함께 갱신합니다.
