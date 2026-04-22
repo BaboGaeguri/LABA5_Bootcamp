@@ -1,3 +1,3 @@
-[submodule "smolVLA/orin/lerobot"]
-	path = smolVLA/orin/lerobot
+[submodule "smolVLA/lerobot"]
+	path = smolVLA/lerobot
 	url = https://github.com/huggingface/lerobot

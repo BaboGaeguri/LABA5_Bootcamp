@@ -5,17 +5,22 @@
 ORIN_HOST="orin"
 ORIN_DEST="/home/laba/smolvla"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-SRC="${SCRIPT_DIR}/orin/"
+Orin_SRC="${SCRIPT_DIR}/orin/"
+LEROBOT_SRC="${SCRIPT_DIR}/lerobot/"
 
-echo "[deploy] ${SRC} → ${ORIN_HOST}:${ORIN_DEST}"
+RSYNC_EXCLUDES=(
+    --exclude '.venv'
+    --exclude '__pycache__'
+    --exclude '*.pyc'
+    --exclude '*.egg-info'
+    --exclude '.git'
+)
 
-rsync -avz --delete \
-    --exclude '.venv' \
-    --exclude '__pycache__' \
-    --exclude '*.pyc' \
-    --exclude '*.egg-info' \
-    --exclude '.git' \
-    "$SRC" "${ORIN_HOST}:${ORIN_DEST}"
+echo "[deploy] orin/  → ${ORIN_HOST}:${ORIN_DEST}"
+rsync -avz --delete "${RSYNC_EXCLUDES[@]}" "$Orin_SRC" "${ORIN_HOST}:${ORIN_DEST}"
+
+echo "[deploy] lerobot/ → ${ORIN_HOST}:${ORIN_DEST}/lerobot"
+rsync -avz --delete "${RSYNC_EXCLUDES[@]}" "$LEROBOT_SRC" "${ORIN_HOST}:${ORIN_DEST}/lerobot"
 
 echo "[deploy] 완료. Orin에서 초기 설치가 필요하면:"
 echo "  ssh orin"

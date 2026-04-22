@@ -50,8 +50,10 @@ CUDA_OK=$(python -c "import torch; print(torch.cuda.is_available())" 2>/dev/null
 echo "[setup] CUDA 사용 가능: ${CUDA_OK}"
 
 # ── 3. lerobot[smolvla,hardware,feetech] 설치 ─────────────────────────────────
-echo "[setup] lerobot 설치 중..."
-pip install -e "${SMOLVLA_DIR}/lerobot[smolvla,hardware,feetech]" --quiet
+# deploy_orin.sh가 smolVLA/lerobot/ → ~/smolvla/lerobot/ 로 동기화함
+LEROBOT_DIR="${SMOLVLA_DIR}/lerobot"
+echo "[setup] lerobot 설치 중 (${LEROBOT_DIR})..."
+pip install -e "${LEROBOT_DIR}[smolvla,hardware,feetech]" --quiet
 
 echo ""
 echo "══════════════════════════════════════════════════════"
