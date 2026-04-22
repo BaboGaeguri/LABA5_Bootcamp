@@ -1,11 +1,31 @@
-# Copilot Instructions
+# Copilot Instructions For smolVLA
 
-## lerobot 원본 수정 금지
+## Mission
 
-- `smolVLA/lerobot/` 은 HuggingFace lerobot의 git submodule 원본이다.
-- 이 디렉토리 하위의 파일은 절대 수정하지 않는다.
-- lerobot 동작을 변경해야 할 경우, `smolVLA/orin/` 레이어에서 래핑하거나 확장한다.
+- Deliver safe, practical changes for smolVLA with focus on the Orin customization layer.
 
-## storage/ 문서 작성 규칙
+## Read Context First
 
-- `storage/` 하위 md 파일에는 bash 명령어 예시를 작성하지 않는다. 단, 사용자가 명시적으로 요청한 경우는 예외로 한다.
+- Read `smolVLA/CLAUDE.md` first to understand current goals, constraints, and focus.
+- Then inspect nearby README/docs in the target directory before editing code.
+- Do not import architecture assumptions from sibling projects unless this repository explicitly references them.
+
+## Hard Rules
+
+- Never edit files under `smolVLA/lerobot/`.
+- If lerobot behavior must change, implement wrappers/extensions under `smolVLA/orin/`.
+- In `smolVLA/docs/storage/`, do not include bash command examples unless explicitly requested.
+
+## Working Style
+
+- Prefer minimal, incremental edits with quick validation.
+- Do not use destructive operations unless explicitly requested.
+- When requirements are ambiguous, clarify assumptions before large changes.
+
+## Response Format
+
+- Always report:
+	- What changed
+	- Why it changed
+	- How it was validated
+	- Remaining risks or next steps

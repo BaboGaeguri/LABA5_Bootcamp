@@ -1,11 +1,43 @@
 # CLAUDE.md
 
-## lerobot 원본 수정 금지
+## Project Snapshot
 
-- `smolVLA/lerobot/` 은 HuggingFace lerobot의 git submodule 원본이다.
-- 이 디렉토리 하위의 파일은 절대 수정하지 않는다.
-- lerobot 동작을 변경해야 할 경우, `smolVLA/orin/` 레이어에서 래핑하거나 확장한다.
+- Project: smolVLA for Physical AI robotics workflow
+- Platform: Orin-centered execution and validation workflow
+- Main development layer: `smolVLA/orin/`
+- Core objective: implement and stabilize custom behavior without touching upstream submodule code
 
-## storage/ 문서 작성 규칙
+## Architecture At A Glance
 
-- `storage/` 하위 md 파일에는 bash 명령어 예시를 작성하지 않는다. 단, 사용자가 명시적으로 요청한 경우는 예외로 한다.
+- `smolVLA/lerobot/`: HuggingFace lerobot upstream submodule (read-only)
+- `smolVLA/orin/`: custom runtime, wrappers, and extensions
+- `smolVLA/docs/`: project docs and operational knowledge
+- `smolVLA/scripts/`: deployment and utility scripts
+
+## Current Working Agreements
+
+- Keep changes small and verifiable to reduce integration risk.
+- For non-trivial updates, include a short reason (`why`) in commit or doc context.
+- If assumptions are needed, state them clearly before implementation.
+
+## Current Focus (Keep Updated)
+
+- Active sprint goals:
+	- Finalize arm-related workflow milestones from `smolVLA/arm_2week_plan.md`
+	- Improve reliability of Orin-side integration paths
+	- Keep documentation aligned with the current deployment flow
+- Near-term blockers:
+	- Hardware/runtime mismatch risk between environments
+	- Drift between docs and executable scripts
+
+## Hard Constraints
+
+- `smolVLA/lerobot/` is an upstream submodule and must not be edited.
+- Any lerobot behavior change must be done by wrapping/extending in `smolVLA/orin/`.
+- Under `docs/storage/`, do not include bash command examples unless explicitly requested.
+
+## Definition Of Done
+
+- Code changes include at least one practical verification step.
+- Documentation changes include intent, impact, and next action when relevant.
+- Report remaining risks explicitly when full validation is not possible.

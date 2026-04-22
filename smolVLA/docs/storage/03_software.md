@@ -14,7 +14,7 @@
 
 ## 2) Orin 실측 소프트웨어 정보
 
-- 스냅샷 파일: `devices_snapshot/orin_env_snapshot_2026-04-22_0043.txt`
+- 스냅샷 파일: `smolVLA/docs/storage/devices_snapshot/orin_env_snapshot_2026-04-22_0043.txt`
 - OS: `Ubuntu 22.04.5 LTS`
 - L4T: `R36.5.0`
 - 커널: `5.15.185-tegra`
@@ -58,7 +58,7 @@
 
 ## 5) DGX Spark 실측 소프트웨어 정보
 
-- 스냅샷 파일: `devices_snapshot/dgx_spark_env_snapshot_2026-04-22_0043.txt`
+- 스냅샷 파일: `smolVLA/docs/storage/devices_snapshot/dgx_spark_env_snapshot_2026-04-22_0043.txt`
 - OS: `Ubuntu 24.04.4 LTS`
 - 커널: `6.17.0-1014-nvidia`
 - CUDA:

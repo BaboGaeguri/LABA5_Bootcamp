@@ -31,8 +31,8 @@
 ## 3) Orin 저장장치 실측
 
 - 스냅샷 파일:
-  - `smolVLA/storage/orin_env_snapshot_2026-04-21_1316.txt`
-  - `smolVLA/storage/orin_storage_snapshot_2026-04-21_1323.txt`
+  - `smolVLA/docs/storage/devices_snapshot/orin_env_snapshot_2026-04-21_1316.txt`
+  - `smolVLA/docs/storage/devices_snapshot/orin_storage_snapshot_2026-04-21_1323.txt`
 - 확인된 디스크:
   - `nvme0n1` `SAMSUNG MZVL2256HCHQ-00B` (256GB급)
   - 루트(`/`) 마운트: `nvme0n1p1` (`ext4`)
@@ -42,7 +42,7 @@
 
 ## 4) DGX Spark 실측
 
-> 스냅샷: `devices_snapshot/dgx_spark_env_snapshot_2026-04-22_0043.txt`
+> 스냅샷: `smolVLA/docs/storage/devices_snapshot/dgx_spark_env_snapshot_2026-04-22_0043.txt`
 
 | 항목 | 실측값 | 비고 |
 |---|---|---|

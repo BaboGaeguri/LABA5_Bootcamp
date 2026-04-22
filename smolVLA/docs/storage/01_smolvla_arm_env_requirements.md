@@ -7,8 +7,8 @@
 ## 1) 문서 역할
 
 - 이 문서: 요구사항(What is required)
-- 하드웨어 실측/보유 현황: `smolVLA/storage/hardware.md`
-- 소프트웨어 실측/설정 현황: `smolVLA/storage/software.md`
+- 하드웨어 실측/보유 현황: `smolVLA/docs/storage/02_hardware.md`
+- 소프트웨어 실측/설정 현황: `smolVLA/docs/storage/03_software.md`
 
 ## 2) 기본 요구사항
 

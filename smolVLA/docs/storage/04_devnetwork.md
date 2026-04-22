@@ -21,7 +21,7 @@
 |---|---|---|---|
 | devPC | 동적 | `172.16.141.254` | DHCP, 변동 있음 |
 | Jetson Orin | `172.16.138.215` | `172.16.138.254` | DHCP, 변동 있음. 2026-04-22 확인 |
-| DGX Spark | WiFi `172.16.128.93` / LAN `192.168.0.7` | WiFi `172.16.128.254` / LAN `192.168.0.1` | DHCP, 변동 있음. 2026-04-22 확인 |
+| DGX Spark | WiFi `172.16.133.66` / LAN `192.168.0.7` | WiFi `172.16.133.254` / LAN `192.168.0.1` | DHCP, 변동 있음. 2026-04-22 재확인 (WiFi 재연결 후 변경) |
 
 > **접속 방식 결정 배경**
 >
@@ -142,7 +142,54 @@ GUI(NetworkManager) 기준으로 설정한다.
 - [x] SSH 키 기반 인증 설정 (ed25519 키 생성 후 Orin·DGX 배포 완료, 비밀번호 없이 접속 확인)
 - [x] `~/.ssh/config`에 `ServerAliveInterval 30` / `ServerAliveCountMax 5` 추가 완료
 - [x] DGX Spark 호스트명(`spark-8434`), 유저명(`laba`) 확인
-- [x] DGX Spark WiFi IP 확인(`172.16.128.93`) 후 `~/.ssh/config` HostName 업데이트
+- [x] DGX Spark WiFi IP 확인(`172.16.133.66`) 후 `~/.ssh/config` HostName 업데이트 (2026-04-22 WiFi 재연결로 변경됨)
 - [x] DGX 라우팅 설정 (LAN/WiFi 동시 연결 환경에서 `172.16.0.0/16` → WiFi 라우트 추가, nmcli 영구 저장)
 - [x] devPC ↔ DGX SSH 접속 성공 확인
-- [x] Orin·DGX IP 변경 시 `~/.ssh/config` HostName 업데이트 절차 숙지 (섹션 8 시연 체크리스트 참고)
+- [x] Orin·DGX IP 변경 시 `~/.ssh/config` HostName 업데이트 절차 숙지 (섹션 8 시연 체크리스트, 섹션 10 트러블슈팅 참고)
+
+---
+
+## 10) 트러블슈팅: SSH 접속 실패 (IP 변경)
+
+### 발생 이력
+
+- **2026-04-22**: DGX Spark WiFi를 끊었다가 재연결하자 DHCP가 새 IP(`172.16.133.66`)를 할당 → 기존 `~/.ssh/config`의 IP(`172.16.128.93`)와 달라져 VS Code Remote SSH 및 터미널 SSH 모두 실패
+
+### 증상
+
+- VS Code: `Could not establish connection to "dgx"`
+- 터미널: `ssh: connect to host ... port 22: Connection refused`
+
+### 원인
+
+학교 DHCP 환경에서 WiFi를 재연결하면 새로운 IP가 할당될 수 있음. `~/.ssh/config`의 HostName은 자동 갱신되지 않으므로 수동 확인 필요.
+
+### 진단 순서
+
+1. devPC에서 SSH 접속 시도 → Connection refused 또는 timeout 발생
+2. DGX에 물리적으로 접근하여 현재 IP 확인:
+   ```
+   ip addr show | grep "inet "
+   ```
+   → `wlp9s9` 항목의 IP가 현재 WiFi IP
+3. devPC의 `~/.ssh/config` 확인:
+   ```
+   cat ~/.ssh/config
+   ```
+
+### 해결 방법
+
+devPC의 `~/.ssh/config`에서 dgx의 HostName을 DGX에서 확인한 현재 IP로 수정:
+
+```
+Host dgx
+    HostName <새 IP>
+    ...
+```
+
+수정 후 `ssh dgx`로 접속 테스트.
+
+### 참고
+
+- ping 실패(100% loss)가 발생해도 DGX 자체가 꺼진 게 아닐 수 있음 — 방화벽이 ICMP를 차단하는 경우도 있으므로 SSH 직접 시도 및 물리적 확인이 우선
+- SSH 서비스 상태는 DGX에서 `systemctl status ssh`로 확인 가능
