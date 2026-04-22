@@ -50,10 +50,9 @@ CUDA_OK=$(python -c "import torch; print(torch.cuda.is_available())" 2>/dev/null
 echo "[setup] CUDA 사용 가능: ${CUDA_OK}"
 
 # ── 3. lerobot[smolvla,hardware,feetech] 설치 ─────────────────────────────────
-# deploy_orin.sh가 smolVLA/lerobot/ → ~/smolvla/lerobot/ 로 동기화함
-LEROBOT_DIR="${SMOLVLA_DIR}/lerobot"
-echo "[setup] lerobot 설치 중 (${LEROBOT_DIR})..."
-pip install -e "${LEROBOT_DIR}[smolvla,hardware,feetech]" --quiet
+# orin/ 디렉토리의 pyproject.toml 이 curated lerobot 패키지를 정의함
+echo "[setup] lerobot 설치 중 (${SMOLVLA_DIR})..."
+pip install -e "${SMOLVLA_DIR}[smolvla,hardware,feetech]" --quiet
 
 echo ""
 echo "══════════════════════════════════════════════════════"
