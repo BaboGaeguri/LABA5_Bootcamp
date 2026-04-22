@@ -10,67 +10,115 @@ smolVLA/
 ├── README.md
 ├── arm_2week_plan.md                    # 2주 실행 계획 및 마일스톤
 ├── dev-connect.sh                       # VS Code Remote SSH로 Orin/DGX 동시 연결
+├── deploy_orin.sh                       # devPC → Orin rsync 배포
+├── sync_lerobot.sh                      # lerobot submodule → orin/lerobot/ 동기화
 ├── .github/
 │   └── copilot-instructions.md         # GitHub Copilot 컨텍스트
 ├── docs/
 │   ├── repository/                      # lerobot 코드 구조 분석 문서
-│   │   ├── lerobot_repo_overview.md
-│   │   ├── lerobot_root_structure.md
-│   │   └── lerobot_src_structure.md
 │   └── storage/                         # 환경/장비 기록 문서 및 스냅샷 스크립트
 │       ├── 01_smolvla_arm_env_requirements.md
 │       ├── 02_hardware.md
 │       ├── 03_software.md
 │       ├── 04_devnetwork.md
-│       ├── collect_snapshot.sh          # 원격 디바이스에서 실행되는 수집 payload
-│       ├── run_snapshots.sh             # 로컬에서 Orin/DGX 동시 수집 실행
-│       └── devices_snapshot/            # 디바이스별 스냅샷 로그 누적
-│           ├── orin_env_snapshot_*.txt
-│           └── dgx_spark_env_snapshot_*.txt
-├── soarm/                               # 커스터마이징 대상 코드 (lerobot 기반)
-│   ├── pyproject.toml
-│   ├── examples/
-│   │   └── tutorial/smolvla/
-│   │       └── using_smolvla_example.py
-│   └── lerobot/
-│       ├── cameras/                     # OpenCV / RealSense / ZMQ 카메라
-│       ├── common/                      # 학습/제어 공통 유틸
-│       ├── configs/                     # 학습·평가 설정
-│       ├── datasets/                    # LeRobot 데이터셋 I/O
-│       ├── motors/                      # Feetech / Dynamixel 드라이버
-│       ├── policies/
-│       │   └── smolvla/                 # SmolVLA 모델 (modeling / processor / config)
-│       ├── processor/                   # 관측·행동 전처리 파이프라인
-│       ├── robots/
-│       │   └── so_follower/             # SO-101 follower 로봇 인터페이스
-│       ├── scripts/                     # 텔레옵 / 녹화 / 평가 실행 스크립트
-│       │   ├── lerobot_teleoperate.py
-│       │   ├── lerobot_record.py
-│       │   └── lerobot_eval.py
-│       ├── teleoperators/
-│       │   ├── so_leader/               # SO-101 leader 텔레오퍼레이터
-│       │   └── keyboard/
-│       └── utils/
-└── src/                                 # (미사용, 예약)
+│       ├── collect_snapshot.sh
+│       ├── run_snapshots.sh
+│       └── devices_snapshot/
+├── lerobot/                             # ⚠️ upstream submodule — 절대 수정 금지
+│                                        #   (huggingface/lerobot 원본)
+└── orin/                                # Jetson Orin 배포 패키지
+    ├── pyproject.toml                   # Orin용 (torch>=2.5, smolvla extras)
+    ├── lerobot/                         # curated 추론 필수 모듈 (110 files)
+    │   ├── cameras/{opencv,realsense,zmq}
+    │   ├── configs/
+    │   ├── envs/                        # 추론 필요 최소본
+    │   ├── model/
+    │   ├── motors/feetech/
+    │   ├── optim/
+    │   ├── policies/{smolvla,rtc}/
+    │   ├── processor/
+    │   ├── robots/so_follower/
+    │   ├── scripts/{lerobot_eval,lerobot_teleoperate}
+    │   ├── teleoperators/so_leader/
+    │   └── utils/
+    ├── examples/
+    │   └── tutorial/smolvla/
+    │       └── using_smolvla_example.py
+    └── scripts/
+        └── setup_env.sh                 # Orin에서 실행 — venv + pip install
 ```
+
+## lerobot 업데이트 워크플로우
+
+lerobot upstream이 업데이트되면 아래 순서로 진행합니다.
+
+**1. submodule pull**
+
+```bash
+git submodule update --remote smolVLA/lerobot
+```
+
+**2. orin/ curated 재동기화**
+
+```bash
+./smolVLA/sync_lerobot.sh
+```
+
+`smolVLA/lerobot/src/lerobot/` 에서 추론 필수 파일만 `smolVLA/orin/lerobot/` 로 복사합니다.
+
+**3. Orin에 배포**
+
+```bash
+./smolVLA/deploy_orin.sh
+```
+
+`smolVLA/orin/` 전체를 Orin의 `~/smolvla/` 로 rsync 합니다.
+
+**4. Orin에서 환경 재설치 (의존성이 바뀐 경우)**
+
+```bash
+ssh orin
+rm -rf ~/smolvla/.venv
+bash ~/smolvla/scripts/setup_env.sh
+```
+
+---
+
+## Orin 최초 설치
+
+```bash
+# devPC
+./smolVLA/deploy_orin.sh
+
+# Orin
+ssh orin
+bash ~/smolvla/scripts/setup_env.sh
+source ~/smolvla/.venv/bin/activate
+```
+
+---
 
 ## 폴더별 용도
 
-- `arm_2week_plan.md`: 2주 실행 계획, 고려사항 결론, 마일스톤
-- `docs/repository/`: lerobot 레포 구조 분석 문서
-- `docs/storage/`: 환경/장비 실측 기록 문서 및 스냅샷 수집 스크립트
-- `soarm/`: SO-ARM 타겟 커스터마이징 코드 (lerobot 기반)
+| 폴더/파일 | 용도 |
+|---|---|
+| `lerobot/` | upstream submodule (수정 금지) |
+| `orin/` | Orin 배포 패키지 — curated lerobot + 예제 + 설치 스크립트 |
+| `sync_lerobot.sh` | lerobot 업데이트 후 orin/ 갱신 (devPC에서 실행) |
+| `deploy_orin.sh` | orin/ → Orin rsync (devPC에서 실행) |
+| `docs/storage/` | 환경/장비 실측 기록 및 스냅샷 수집 스크립트 |
+| `arm_2week_plan.md` | 2주 실행 계획, 마일스톤 |
 
 ## `docs/storage/` 문서 역할 분리
 
 | 파일 | 역할 |
 |---|---|
-| `01_smolvla_arm_env_requirements.md` | 요구사항 정의 (What is required) |
+| `01_smolvla_arm_env_requirements.md` | 요구사항 정의 |
 | `02_hardware.md` | 하드웨어 실측값 (devPC / Orin / DGX Spark / SO-ARM BOM) |
-| `03_software.md` | 소프트웨어 실측값 (OS, CUDA, conda env, 패키지 버전) |
+| `03_software.md` | 소프트웨어 실측값 (OS, CUDA, 패키지 버전) |
 | `04_devnetwork.md` | devPC ↔ Orin ↔ DGX Spark WiFi SSH 연결 설정 |
-| `collect_snapshot.sh` | Orin/DGX 자동 감지 후 환경 정보 수집 (원격 실행용 payload) |
-| `run_snapshots.sh` | 로컬에서 SSH로 두 디바이스 동시 수집 후 `devices_snapshot/`에 저장 |
+| `collect_snapshot.sh` | Orin/DGX 환경 정보 수집 payload (원격 실행용) |
+| `run_snapshots.sh` | 두 디바이스 동시 수집 후 `devices_snapshot/` 저장 |
 
 ## AI 어시스턴트 컨텍스트 파일
 
