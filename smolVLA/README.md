@@ -32,12 +32,14 @@ smolVLA/
 │       │   ├── collect_snapshot.sh
 │       │   ├── run_snapshots.sh
 │       │   └── *_snapshot_*.txt
-│       └── lerobot_upstream_check/      # lerobot upstream 추적 및 충돌 점검
-│           ├── 01_compatibility_check.md
-│           ├── 02_orin_pyproject_diff.md
-│           ├── 03_orin_lerobot_diff.md
-│           ├── 99_lerobot_upstream_Tracking.md
-│           └── check_update_diff.sh
+│       ├── lerobot_upstream_check/      # lerobot upstream 추적 및 충돌 점검
+│       │   ├── 01_compatibility_check.md
+│       │   ├── 02_orin_pyproject_diff.md
+│       │   ├── 03_orin_lerobot_diff.md
+│       │   ├── 99_lerobot_upstream_Tracking.md
+│       │   └── check_update_diff.sh
+│       └── others/                      # 수동 설치용 사전 빌드 wheel 등 보관
+│           └── torchvision-0.20.0a0+afc54f7-cp310-cp310-linux_aarch64.whl   # Seeed SharePoint JP 6.1&6.2 + PyTorch 2.5 대응
 └── orin/                                # Jetson Orin 배포 패키지
     ├── pyproject.toml                   # Orin용 (torch>=2.5, Python>=3.10, smolvla extras)
     ├── lerobot/                         # curated 추론 필수 모듈
@@ -161,6 +163,14 @@ source ~/smolvla/.venv/bin/activate
 | `02_orin_pyproject_diff.md` | upstream vs orin/pyproject.toml 변경 이력 누적 기록 |
 | `03_orin_lerobot_diff.md` | upstream vs orin/lerobot/ 코드 변경 이력 누적 기록 |
 | `99_lerobot_upstream_Tracking.md` | lerobot 동기화 이력 누적 기록 |
+
+### `others/`
+
+PyPI·공식 인덱스에서 구할 수 없어 **수동 배포가 필요한 사전 빌드 wheel**을 보관합니다.
+
+| 파일 | 역할 |
+|---|---|
+| `torchvision-0.20.0a0+afc54f7-cp310-cp310-linux_aarch64.whl` | Seeed SharePoint 제공 Jetson aarch64 빌드. JetPack 6.1 & 6.2 + CUDA 12.6 + **PyTorch 2.5 전용** torchvision 0.20. Orin에서 `pip install <file> --no-deps`로 수동 설치 (`setup_env.sh`가 PyPI 설치 실패 시 대체). 원본: [reComputer 3.5-Pytorch/README.md L60](docs/reference/reComputer-Jetson-for-Beginners/3-Basic-Tools-and-Getting-Started/3.5-Pytorch/README.md#L60) |
 
 ---
 
