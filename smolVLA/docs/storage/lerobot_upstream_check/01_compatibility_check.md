@@ -101,6 +101,44 @@ motors_bus.py
 
 ---
 
+---
+
+### [2026-04-23] Seeed-Projects/lerobot 포크 Python 3.10 호환성 점검
+
+**목적:** upstream(huggingface/lerobot) 대신 Seeed 포크로 서브모듈을 교체하면 orin/ 패치 부담이 줄어드는지 확인.
+
+**포크 URL:** https://github.com/Seeed-Projects/lerobot
+
+**방법:** `docs/reference/seeed-lerobot` 서브모듈로 추가 후 로컬에서 직접 코드 확인 (설치 없음).
+
+**점검 결과:**
+
+| 체크 항목 | upstream(huggingface) | Seeed 포크 | 판단 |
+|---|---|---|---|
+| `requires-python` | `>=3.12` | **`>=3.10`** | ✅ Seeed가 3.10 호환으로 낮춤 |
+| `io_utils.py` — generic 함수 문법 | `def func[T: JsonLike](...)` (3.12 전용) | `TypeVar("T", bound=JsonLike)` | ✅ Seeed가 동일 방식으로 패치 |
+| `motors_bus.py` — type alias | `type NameOrID = str \| int` (3.12 전용) | `NameOrID: TypeAlias = str \| int` | ✅ Seeed가 패치 완료 |
+| `factory.py` / `pretrained.py` | `from typing import Unpack` (3.11 미지원) | `TypeVar` from typing 사용 | ✅ Seeed가 패치 완료 |
+| `hil_processor.py` — torchvision | `import torchvision.transforms.functional` | 동일하게 유지 | ❌ Seeed도 torchvision 필요 |
+| 커밋 lag | 최신 (PR #3427) | PR #2847 기준 | ⚠️ 약 600 PR 후행 |
+
+**smolVLA 관련:**
+- `factory.py`에서 `policy_type == "smolvla"` 분기 확인 — Seeed 포크도 smolVLA 지원함
+- torchvision 의존성 파일: `hil_processor.py`, `video_utils.py`, `modeling_diffusion.py`, `transforms.py` 등 다수 — 제거 없음
+
+**결정: 포크 교체 미채택**
+
+이유:
+1. upstream 대비 ~600 PR 후행 — 최신 smolVLA 기능·버그픽스 누락 위험
+2. Python 3.10 패치 3곳은 우리가 이미 동일한 방식으로 적용 중 → 추가 이득 없음
+3. torchvision 의존성은 Seeed 포크도 동일하게 유지 → 설치 필요성은 동일
+
+**부수 확인 사항:**
+
+Seeed 포크가 같은 방식으로 Python 3.10 패치를 적용한 것은 우리 orin/ 패치 방향이 올바름을 교차 검증함.
+
+---
+
 ## 향후 점검 체크리스트
 
 upstream 동기화 전 아래 항목을 `check_update_diff.sh` 출력과 함께 확인한다.

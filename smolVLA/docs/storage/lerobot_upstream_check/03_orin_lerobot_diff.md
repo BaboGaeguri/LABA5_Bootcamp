@@ -34,10 +34,12 @@ from .hil_processor import (
 
 **제거 이유:**
 
-`hil_processor.py`가 `torchvision.transforms.functional`을 import하는데, Orin JetPack 6.2.2 환경에서 torch 2.5.0a0(JP 6.0 wheel)과 호환되는 torchvision 버전을 구할 수 없었음.
+`hil_processor.py`가 `torchvision.transforms.functional`을 import하는데, Orin JetPack 6.2.2 환경에서 당초 호환 torchvision 버전을 구할 수 없었음.
 
-- jp6/cu126 인덱스: torchvision 0.26.0만 제공 → `torch==2.11.0` 전용, ABI 불일치로 `operator torchvision::nms does not exist` 오류 발생
+- jp6/cu126 인덱스: torchvision 0.26.0만 제공 → `torch==2.11.0` 전용, ABI 불일치로 오류 발생
 - NVIDIA JP 6.0 디렉토리: torch wheel만 제공, torchvision 없음
+
+> **[2026-04-23 업데이트]** Seeed SharePoint에서 PyTorch 2.5 대응 torchvision **0.20** (JP 6.1 & 6.2, CUDA 12.6) wheel 확인. 설치 가능해졌으나, `hil_processor`는 **HIL 학습 전용** 컴포넌트이므로 import 제거 결정은 유지. torchvision 0.20 설치 후에도 이 import는 복원하지 않는다.
 
 `hil_processor`는 HIL(Human-in-the-Loop) RL 학습 전용 컴포넌트이며 smolVLA 추론 경로에서 사용되지 않는다.
 smolVLA 추론은 `processor_smolvla.py`를 통해 아래만 사용:
@@ -60,7 +62,7 @@ smolVLA 추론은 `processor_smolvla.py`를 통해 아래만 사용:
 
 **변경 내용:** `from .default import DatasetConfig, EvalConfig, PeftConfig, WandBConfig` 제거 및 `__all__`에서 해당 심볼 제거.
 
-**제거 이유:** `configs/default.py`가 `lerobot.transforms`를 import하고, `transforms.py`가 `torchvision.transforms.v2`를 사용함. Orin에 설치 가능한 torchvision이 없으므로 체인을 끊기 위해 제거. `DatasetConfig`, `EvalConfig`, `PeftConfig`, `WandBConfig`는 학습/데이터셋 전용이며 smolVLA 추론 경로에서 미사용.
+**제거 이유:** `configs/default.py`가 `lerobot.transforms`를 import하고, `transforms.py`가 `torchvision.transforms.v2`를 사용함. 당초 Orin에 설치 가능한 torchvision이 없었으므로 체인을 끊기 위해 제거. torchvision 0.20 설치 후에도 해당 config들은 학습/데이터셋 전용이므로 import 복원하지 않는다. `DatasetConfig`, `EvalConfig`, `PeftConfig`, `WandBConfig`는 학습/데이터셋 전용이며 smolVLA 추론 경로에서 미사용.
 
 ---
 
@@ -204,6 +206,8 @@ self.processor = _TokenizerOnlyProcessor(model_id)
 **변경 이유:**
 
 `AutoProcessor.from_pretrained("HuggingFaceTB/SmolVLM2-500M-Video-Instruct")`가 `SmolVLMProcessor`를 로드하는 과정에서 `video_processing_smolvlm.py`를 import하고, 해당 파일이 `import torchvision.transforms.v2.functional`을 시도함. Orin에 torchvision 미설치로 `ModuleNotFoundError` 발생.
+
+> **[2026-04-23 업데이트]** Seeed SharePoint에서 torchvision **0.20** (PyTorch 2.5 대응) wheel 확인. Orin에 설치 후 `_TokenizerOnlyProcessor`를 제거하고 `AutoProcessor.from_pretrained(model_id)`로 복원 예정. 설치 전까지 현 우회 코드 유지.
 
 `self.processor`의 실제 사용처는 `modeling_smolvla.py`에서 두 토큰 ID 접근뿐이므로:
 - `self.vlm_with_expert.processor.tokenizer.fake_image_token_id`

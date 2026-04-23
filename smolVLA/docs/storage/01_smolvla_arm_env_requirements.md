@@ -12,7 +12,7 @@
 - 하드웨어 실측/보유 현황 (`02`): `smolVLA/docs/storage/02_hardware.md`
 - 소프트웨어 실측/설정 현황 (`03`): `smolVLA/docs/storage/03_software.md`
 - 개발 네트워크 설정 (`04`): `smolVLA/docs/storage/04_devnetwork.md`
-- Orin 환경 세팅 기록 (`05`): `smolVLA/docs/storage/05_env_setting.md`
+- Orin 환경 세팅 기록 (`05`): `smolVLA/docs/storage/05_orin_venv_setting.md`
 - 장치 스냅샷 점검: `smolVLA/docs/storage/devices_snapshot/` — `run_snapshots.sh`, `collect_snapshot.sh`
 - lerobot upstream 추적: `smolVLA/docs/storage/lerobot_upstream_check/`
   - `99_lerobot_upstream_Tracking.md` — 동기화 이력

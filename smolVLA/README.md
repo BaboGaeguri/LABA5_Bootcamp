@@ -27,7 +27,7 @@ smolVLA/
 │       ├── 02_hardware.md
 │       ├── 03_software.md
 │       ├── 04_devnetwork.md
-│       ├── 05_env_setting.md
+│       ├── 05_orin_venv_setting.md
 │       ├── devices_snapshot/            # 장치 점검 스크립트 + 수집 결과
 │       │   ├── collect_snapshot.sh
 │       │   ├── run_snapshots.sh
@@ -142,7 +142,7 @@ source ~/smolvla/.venv/bin/activate
 | `02_hardware.md` | 하드웨어 실측값 (devPC / Orin / DGX Spark / SO-ARM BOM) |
 | `03_software.md` | 소프트웨어 실측값 (OS, JetPack, CUDA, 패키지 버전) |
 | `04_devnetwork.md` | devPC ↔ Orin ↔ DGX Spark 네트워크/SSH 연결 설정 |
-| `05_env_setting.md` | Orin lerobot 환경 세팅 기록 (conda env, PyTorch 설치 방식) |
+| `05_orin_venv_setting.md` | Orin Python venv 구성 상세 — PyTorch 설치 방식·근거, pip 패키지 현황 |
 
 ### `devices_snapshot/`
 

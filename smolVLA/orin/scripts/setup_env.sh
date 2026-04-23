@@ -5,9 +5,11 @@
 # JetPack 6.2.2 (R36.5.0) 기준:
 #   CUDA 12.6, Python 3.10 (cp310)
 #   PyTorch: NVIDIA JP 6.0 공식 wheel (nv24.08, cu12.6 forward-compatible)
-#   - JP 6.2부터 NVIDIA 공식 standalone wheel 공급 중단
+#   - JP 6.2 공식 배포는 컨테이너 전용 (wheel 없음). 네이티브 venv + SO-ARM UART hotplug +
+#     lerobot editable dev 조합과 맞지 않아 JP 6.0 wheel(nv24.08)을 의도적으로 선택.
+#     (2026-03부터 NVIDIA도 iGPU standalone 컨테이너 생산 중단)
 #   - jp6/cu126 Jetson AI Lab 인덱스 wheel은 libcudss/libcusparseLt 미설치로 동작 불가
-#   - JP 6.0 wheel (2.5.0a0+872d972e41.nv24.08) + cusparselt LD_LIBRARY_PATH 패치로 동작 확인
+#   - JP 6.0 wheel (2.5.0a0+872d972e41.nv24.08) 동작 확인
 
 set -e
 
@@ -24,6 +26,32 @@ fi
 echo "[setup] smolVLA 경로: ${SMOLVLA_DIR}"
 echo "[setup] venv 경로:    ${VENV_DIR}"
 echo "[setup] Python:       $($PYTHON --version)"
+
+# ── 0. 시스템 의존 패키지 ──────────────────────────────────────────────────────────
+# NVIDIA 공식 요건 (Install-PyTorch-Jetson-Platform.md §2)
+echo "[setup] 시스템 의존 패키지 설치 중 (libopenblas-dev, libopenmpi-dev, libomp-dev)..."
+sudo apt-get install -y libopenblas-dev libopenmpi-dev libomp-dev --quiet
+
+# cusparselt 시스템 설치: 24.06 이상 wheel 사용 시 필요.
+# 권장: NVIDIA cuSPARSELt 0.8.1 deb(aarch64-jetson, Ubuntu 22.04)를 먼저 수동 설치.
+#   https://developer.nvidia.com/cusparselt-downloads
+#   sudo dpkg -i libcusparselt*.deb && sudo ldconfig
+# 미설치 시 아래 Option A 폴백 자동 실행.
+if ! ldconfig -p 2>/dev/null | grep -q "libcusparseLt"; then
+    # Option B (권장 — Orin 단일 장비): 사전에 NVIDIA deb 수동 설치 시 이 블록 스킵됨
+    #   https://developer.nvidia.com/cusparselt-downloads
+    #   → Linux / aarch64-jetson / Native / Ubuntu / 22.04 / deb (local) 선택 후 설치
+    #   sudo dpkg -i libcusparselt*.deb && sudo ldconfig
+    #
+    # Option A (자동 폴백): install_cusparselt.sh 는 CUDA 12.1–12.4만 지원
+    #   CUDA 12.6 에서는 스크립트 내 버전 분기가 없어 실패함 → 현재는 스킵
+    echo "[setup] libcusparseLt 시스템 미설치 — Option A 스킵 (CUDA 12.6 미지원)"
+    echo "[setup]   권장: NVIDIA cuSPARSELt 0.8.1 deb(aarch64-jetson) 수동 설치"
+    echo "[setup]   https://developer.nvidia.com/cusparselt-downloads"
+    echo "[setup]   → LD_LIBRARY_PATH 패치(§4)로 임시 대체"
+else
+    echo "[setup] libcusparseLt 시스템 설치 확인 — 스킵"
+fi
 
 # ── 1. venv 생성 ───────────────────────────────────────────────────────────────
 if [ -d "$VENV_DIR" ]; then
@@ -48,12 +76,10 @@ pip install --upgrade pip --quiet
 echo "[setup] lerobot 설치 중 (${SMOLVLA_DIR})..."
 pip install -e "${SMOLVLA_DIR}[smolvla,hardware,feetech]" --quiet
 
-# ── 3. PyTorch (Jetson AI Lab jp6/cu126 인덱스, CUDA 12.6 전용) ───────────────
-# JP 6.2부터 NVIDIA 공식 wheel 없음. Jetson AI Lab 준공식 인덱스 사용.
-# lerobot 설치 이후에 실행해야 PyPI CPU-only wheel 에 의한 덮어쓰기를 막을 수 있음.
+# ── 3. PyTorch (NVIDIA JP 6.0 공식 redist wheel, CUDA 12.6 forward-compatible) ─
+# JP 6.2 공식 배포는 컨테이너 전용. lerobot editable + SO-ARM 환경에 맞지 않아 JP 6.0
+# wheel(nv24.08)을 의도적으로 선택. lerobot 이후 설치해야 PyPI CPU-only wheel 덮어쓰기 방지.
 echo "[setup] PyTorch 설치 중 (NVIDIA JP 6.0 wheel — CUDA 12.6 forward-compatible)..."
-# jp6/cu126 인덱스 wheel은 libcudss/libcusparseLt 미설치 문제로 동작 불가.
-# JP 6.0 공식 wheel(nv24.08, cu12.6, cp310)이 JetPack 6.2.2 CUDA 12.6에서 동작 확인됨.
 pip install \
     "https://developer.download.nvidia.com/compute/redist/jp/v61/pytorch/torch-2.5.0a0+872d972e41.nv24.08.17622132-cp310-cp310-linux_aarch64.whl" \
     --force-reinstall --no-deps \
@@ -63,23 +89,69 @@ pip install \
 echo "[setup] NumPy 1.x 고정 중..."
 pip install "numpy>=1.24.0,<2" --force-reinstall --quiet
 
-# ── 4. LD_LIBRARY_PATH 패치 (venv activate에 영구 적용) ──────────────────────
-# torch 2.5.0a0 은 libcusparseLt.so.0 을 시스템 경로에서 찾으나 JetPack 6.2.2 미포함.
-# pip 설치된 nvidia-cusparselt 패키지 경로를 activate 스크립트에 추가.
-CUSPARSELT_LIB="${VENV_DIR}/lib/python3.10/site-packages/nvidia/cusparselt/lib"
+# ── 3-b. torchvision (PyTorch 2.5 대응, 버전 0.20) ───────────────────────────
+# --no-deps: 의존성으로 PyPI CPU-only torch가 덮어쓰지 못하도록 방지
+# AutoProcessor (smolVLA 추론 경로)의 image preprocessing은 CPU 연산이므로
+# PyPI 기본 aarch64 wheel로도 충분할 가능성 있음.
+# 실패 시 Seeed SharePoint wheel(CUDA 빌드)을 수동으로 설치:
+#   docs/reference/reComputer-Jetson-for-Beginners/3.5-Pytorch/README.md L60
+echo "[setup] torchvision 설치 중 (PyPI, --no-deps)..."
+if pip install "torchvision==0.20.0" --no-deps --quiet; then
+    TORCHVISION_VER=$(python -c "import torchvision; print(torchvision.__version__)" 2>/dev/null || echo "")
+    if [ -n "$TORCHVISION_VER" ]; then
+        echo "[setup] torchvision 설치 완료: ${TORCHVISION_VER}"
+    else
+        echo "[setup] 경고: torchvision 설치됐으나 import 실패"
+        echo "[setup]        Seeed SharePoint wheel(CUDA 빌드)로 재설치 권장"
+        echo "[setup]        → pip install <torchvision-0.20-...-cp310-linux_aarch64.whl> --no-deps"
+    fi
+else
+    echo "[setup] 경고: torchvision PyPI 설치 실패"
+    echo "[setup]        Seeed SharePoint에서 torchvision 0.20 wheel 수동 다운로드 후 재설치 필요"
+    echo "[setup]        → docs/reference/reComputer-Jetson-for-Beginners/3.5-Pytorch/README.md L60"
+fi
+
+# ── 4. LD_LIBRARY_PATH 패치 (cusparselt 시스템 미설치 시 임시 우회) ──────────────
+# §0에서 시스템 설치 성공 시 불필요. 실패 시에만 pip 번들 경로를 activate에 추가.
 ACTIVATE_SCRIPT="${VENV_DIR}/bin/activate"
-if [ -d "$CUSPARSELT_LIB" ] && ! grep -q "cusparselt" "$ACTIVATE_SCRIPT"; then
-    echo "export LD_LIBRARY_PATH=${CUSPARSELT_LIB}:\$LD_LIBRARY_PATH" >> "$ACTIVATE_SCRIPT"
-    echo "[setup] cusparselt LD_LIBRARY_PATH 패치 적용"
+if ! ldconfig -p 2>/dev/null | grep -q "libcusparseLt"; then
+    CUSPARSELT_LIB="${VENV_DIR}/lib/python3.10/site-packages/nvidia/cusparselt/lib"
+    if [ -d "$CUSPARSELT_LIB" ] && ! grep -q "cusparselt" "$ACTIVATE_SCRIPT"; then
+        echo "export LD_LIBRARY_PATH=${CUSPARSELT_LIB}:\$LD_LIBRARY_PATH" >> "$ACTIVATE_SCRIPT"
+        echo "[setup] 경고: cusparselt 시스템 미설치. LD_LIBRARY_PATH 임시 패치 적용."
+        echo "[setup]       해결: NVIDIA cuSPARSELt 0.8.1 deb(aarch64-jetson) 설치 권장."
+    fi
+else
+    echo "[setup] cusparselt 시스템 설치 확인 — LD_LIBRARY_PATH 패치 불필요"
+fi
+
+# ── 5. nvcc PATH 등록 (~/.bashrc) ─────────────────────────────────────────────
+if [ -d "/usr/local/cuda/bin" ] && ! grep -q "cuda/bin" ~/.bashrc 2>/dev/null; then
+    echo 'export PATH=/usr/local/cuda/bin:$PATH' >> ~/.bashrc
+    echo 'export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH' >> ~/.bashrc
+    echo "[setup] nvcc PATH ~/.bashrc 등록 완료 (source ~/.bashrc 또는 재로그인 필요)"
+else
+    echo "[setup] nvcc PATH 이미 등록됨 또는 /usr/local/cuda/bin 없음 — 스킵"
 fi
 
 source "${VENV_DIR}/bin/activate"
 
-TORCH_VER=$(python -c "import torch; print(torch.__version__)" 2>/dev/null || echo "설치 실패")
-echo "[setup] torch 버전: ${TORCH_VER}"
-
-CUDA_OK=$(python -c "import torch; print(torch.cuda.is_available())" 2>/dev/null || echo "false")
-echo "[setup] CUDA 사용 가능: ${CUDA_OK}"
+# ── 6. 설치 검증 (실제 CUDA 텐서 연산 — cusparselt lazy load 포함) ─────────────
+echo "[setup] CUDA 연산 검증 중..."
+python - <<'PYEOF'
+import torch, sys
+print(f"  torch:          {torch.__version__}")
+print(f"  CUDA available: {torch.cuda.is_available()}")
+print(f"  cuDNN version:  {torch.backends.cudnn.version()}")
+try:
+    a = torch.cuda.FloatTensor(2).zero_()
+    b = torch.randn(2).cuda()
+    c = a + b
+    print(f"  CUDA 텐서 연산: {c.tolist()} ✓")
+except Exception as e:
+    print(f"[ERROR] CUDA 연산 실패: {e}", file=sys.stderr)
+    sys.exit(1)
+PYEOF
 
 echo ""
 echo "══════════════════════════════════════════════════════"

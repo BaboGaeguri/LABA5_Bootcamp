@@ -38,7 +38,7 @@ JetPack 판별 근거:
 
 - Docker 실행 중 컨테이너: 없음 (스냅샷 시점)
 - PyTorch: venv에 설치 (`~/smolvla/.venv`) — 시스템 패키지 아님
-  - 설치 방식 및 패키지 버전 상세: `docs/storage/05_env_setting.md`
+  - 설치 방식 및 패키지 버전 상세: `docs/storage/05_orin_venv_setting.md`
 
 ## 4) 노트북 의존성 실측 결과 (기록용)
 
@@ -82,7 +82,7 @@ JetPack 판별 근거:
 
 ## 6) 추가 확인 필요 항목
 
-- [x] PyTorch 설치 방식 확정 — NVIDIA JP 6.0 공식 redist wheel (`nv24.08`, torch `2.5.0a0+872d972e41`). CUDA avail: True (12.6). 상세 기록: `05_env_setting.md` Section 3
+- [x] PyTorch 설치 방식 확정 — NVIDIA JP 6.0 공식 redist wheel (`nv24.08`, torch `2.5.0a0+872d972e41`). CUDA avail: True (12.6). 상세 기록: `05_orin_venv_setting.md` Section 3
 - [ ] DGX cuDNN / TensorRT 설치 필요 여부 확인
 - [ ] 학습 PC(DGX)와 Orin 간 모델 반입/실행 절차 확정
 - [ ] 외장 SSD 사용 시 데이터셋/체크포인트 경로 확정
