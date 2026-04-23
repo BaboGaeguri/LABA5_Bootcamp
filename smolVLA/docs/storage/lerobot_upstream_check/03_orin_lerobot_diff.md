@@ -10,6 +10,36 @@
 
 ## 변경 이력
 
+### [2026-04-23] `policies/smolvla/smolvlm_with_expert.py` — `AutoProcessor` 복원
+
+**대상 파일:** `orin/lerobot/policies/smolvla/smolvlm_with_expert.py`
+
+**변경 내용:**
+
+기존 우회 클래스 `_TokenizerOnlyProcessor`를 제거하고, processor 로딩을 upstream과 동일하게 복원.
+
+```python
+# before
+self.processor = _TokenizerOnlyProcessor(model_id)
+
+# after
+self.processor = AutoProcessor.from_pretrained(model_id)
+```
+
+**변경 이유:**
+
+Orin 환경에 torchvision `0.20.0a0+afc54f7` wheel 설치 및 CUDA `torchvision.ops.nms` 검증이 완료되어,
+`AutoProcessor` 경로가 더 이상 `torchvision` 의존성 문제로 막히지 않음.
+우회 코드를 제거해 upstream 대비 diff를 축소하고 유지보수 부담을 낮춤.
+
+**영향 범위:**
+
+| 기능 | 영향 |
+|---|---|
+| smolVLA 추론 경로 | 없음 (정상 동작 유지) |
+| 학습/HIL/시뮬레이션 경로 | 없음 (본 변경은 추론 경로 processor 복원만 대상) |
+| upstream 동기화 난이도 | 개선 (우회 코드 1건 제거) |
+
 ### [2026-04-23] `processor/__init__.py` — hil_processor import 제거
 
 **대상 파일:** `orin/lerobot/processor/__init__.py`
@@ -207,7 +237,7 @@ self.processor = _TokenizerOnlyProcessor(model_id)
 
 `AutoProcessor.from_pretrained("HuggingFaceTB/SmolVLM2-500M-Video-Instruct")`가 `SmolVLMProcessor`를 로드하는 과정에서 `video_processing_smolvlm.py`를 import하고, 해당 파일이 `import torchvision.transforms.v2.functional`을 시도함. Orin에 torchvision 미설치로 `ModuleNotFoundError` 발생.
 
-> **[2026-04-23 업데이트]** Seeed SharePoint에서 torchvision **0.20** (PyTorch 2.5 대응) wheel 확인. Orin에 설치 후 `_TokenizerOnlyProcessor`를 제거하고 `AutoProcessor.from_pretrained(model_id)`로 복원 예정. 설치 전까지 현 우회 코드 유지.
+> **[2026-04-23 업데이트]** Seeed SharePoint torchvision **0.20** wheel 설치/검증 완료로 `_TokenizerOnlyProcessor`를 제거하고 `AutoProcessor.from_pretrained(model_id)` 복원 완료.
 
 `self.processor`의 실제 사용처는 `modeling_smolvla.py`에서 두 토큰 ID 접근뿐이므로:
 - `self.vlm_with_expert.processor.tokenizer.fake_image_token_id`
@@ -255,4 +285,4 @@ self.processor = _TokenizerOnlyProcessor(model_id)
 - [ ] `policies/__init__.py` — smolvla 외 Config import 재추가 여부 확인 후 다시 제거
 - [ ] `policies/factory.py` — smolvla 외 policy 분기 재추가 여부 확인 후 다시 제거; `Unpack` import 패치(typing_extensions) 유지 여부 확인
 - [ ] `policies/pretrained.py` — `TrainPipelineConfig` import가 TYPE_CHECKING 밖으로 나오면 다시 이동; `Unpack` 패치 유지 여부 확인
-- [ ] `policies/smolvla/smolvlm_with_expert.py` — `AutoProcessor` 제거, `_TokenizerOnlyProcessor` 유지 여부 확인. upstream이 torchvision 없이 동작하면 `AutoProcessor`로 복원 가능
+- [ ] `policies/smolvla/smolvlm_with_expert.py` — `AutoProcessor` 경로 유지 여부 확인 (upstream 변경 시 재검토)

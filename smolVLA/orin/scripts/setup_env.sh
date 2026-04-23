@@ -89,26 +89,15 @@ pip install \
 echo "[setup] NumPy 1.x 고정 중..."
 pip install "numpy>=1.24.0,<2" --force-reinstall --quiet
 
-# ── 3-b. torchvision (PyTorch 2.5 대응, 버전 0.20) ───────────────────────────
-# --no-deps: 의존성으로 PyPI CPU-only torch가 덮어쓰지 못하도록 방지
-# AutoProcessor (smolVLA 추론 경로)의 image preprocessing은 CPU 연산이므로
-# PyPI 기본 aarch64 wheel로도 충분할 가능성 있음.
-# 실패 시 Seeed SharePoint wheel(CUDA 빌드)을 수동으로 설치:
-#   docs/reference/reComputer-Jetson-for-Beginners/3.5-Pytorch/README.md L60
-echo "[setup] torchvision 설치 중 (PyPI, --no-deps)..."
-if pip install "torchvision==0.20.0" --no-deps --quiet; then
-    TORCHVISION_VER=$(python -c "import torchvision; print(torchvision.__version__)" 2>/dev/null || echo "")
-    if [ -n "$TORCHVISION_VER" ]; then
-        echo "[setup] torchvision 설치 완료: ${TORCHVISION_VER}"
-    else
-        echo "[setup] 경고: torchvision 설치됐으나 import 실패"
-        echo "[setup]        Seeed SharePoint wheel(CUDA 빌드)로 재설치 권장"
-        echo "[setup]        → pip install <torchvision-0.20-...-cp310-linux_aarch64.whl> --no-deps"
-    fi
+# ── 3-b. torchvision (Jetson aarch64 + CUDA 12.6 + PyTorch 2.5 대응 wheel) ───
+# PyPI torchvision wheel은 Jetson CUDA 빌드가 아니어서 ABI 불일치 가능성이 있다.
+# 따라서 Orin에서는 사전빌드 wheel을 수동 1회 설치하는 방식을 사용한다.
+if ! python -c "import torchvision" >/dev/null 2>&1; then
+    echo "[setup] torchvision 미설치 — 수동 1회 설치 필요"
+    echo "[setup]   devPC: scp smolVLA/docs/storage/others/torchvision-0.20.0a0+afc54f7-cp310-cp310-linux_aarch64.whl orin:~/"
+    echo "[setup]   Orin:  pip install ~/torchvision-0.20.0a0+afc54f7-cp310-cp310-linux_aarch64.whl --no-deps --force-reinstall"
 else
-    echo "[setup] 경고: torchvision PyPI 설치 실패"
-    echo "[setup]        Seeed SharePoint에서 torchvision 0.20 wheel 수동 다운로드 후 재설치 필요"
-    echo "[setup]        → docs/reference/reComputer-Jetson-for-Beginners/3.5-Pytorch/README.md L60"
+    echo "[setup] torchvision 설치 확인: $(python -c 'import torchvision; print(torchvision.__version__)')"
 fi
 
 # ── 4. LD_LIBRARY_PATH 패치 (cusparselt 시스템 미설치 시 임시 우회) ──────────────

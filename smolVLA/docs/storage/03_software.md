@@ -1,6 +1,7 @@
 # smolVLA 소프트웨어 현황 (현재 설정/실측)
 
 > 작성일: 2026-04-21  
+> 업데이트: 2026-04-23
 > 목적: 실제 설정된 소프트웨어 환경 값을 기록
 
 ## 1) 기본 개발 환경
@@ -20,12 +21,13 @@
 - L4T: `R36.5.0`
 - 커널: `5.15.185-tegra`
 - CUDA:
-  - `nvcc`: PATH에 미탐지 (패키지로 설치됨, SDK `12.6.11`)
+  - `nvcc`: PATH 등록 및 동작 확인 (`Cuda compilation tools, release 12.6, V12.6.68`)
   - cudart: `12.6.68`
 - cuDNN: `9.3.0.75-1` (for CUDA 12.6)
 - TensorRT: `10.3.0.30-1+cuda12.5`
 - GPU 드라이버: `540.5.0`
 - nvpmodel 현재 모드: `25W` (mode id `1`)
+- ffmpeg: 설치됨 (`4.4.2-0ubuntu0.22.04.1`)
 
 JetPack 판별 근거:
 - 장비 식별: `aarch64` + `5.15.185-tegra` 커널로 Jetson Orin 환경 확인.
@@ -82,7 +84,9 @@ JetPack 판별 근거:
 
 ## 6) 추가 확인 필요 항목
 
-- [x] PyTorch 설치 방식 확정 — NVIDIA JP 6.0 공식 redist wheel (`nv24.08`, torch `2.5.0a0+872d972e41`). CUDA avail: True (12.6). 상세 기록: `05_orin_venv_setting.md` Section 3
+- [x] Orin 시스템 소프트웨어 재검증 완료 (2026-04-23)
+  - `nvcc -V` 정상 출력 (`release 12.6, V12.6.68`)
+  - `ffmpeg` 설치 완료 (`4.4.2-0ubuntu0.22.04.1`)
 - [ ] DGX cuDNN / TensorRT 설치 필요 여부 확인
 - [ ] 학습 PC(DGX)와 Orin 간 모델 반입/실행 절차 확정
 - [ ] 외장 SSD 사용 시 데이터셋/체크포인트 경로 확정

@@ -38,6 +38,8 @@ smolVLA/
 │       │   ├── 03_orin_lerobot_diff.md
 │       │   ├── 99_lerobot_upstream_Tracking.md
 │       │   └── check_update_diff.sh
+│       ├── logs/                         # 작업 로그/진행 TODO 기록
+│       │   └── todo.md
 │       └── others/                      # 수동 설치용 사전 빌드 wheel 등 보관
 │           └── torchvision-0.20.0a0+afc54f7-cp310-cp310-linux_aarch64.whl   # Seeed SharePoint JP 6.1&6.2 + PyTorch 2.5 대응
 └── orin/                                # Jetson Orin 배포 패키지
@@ -163,6 +165,12 @@ source ~/smolvla/.venv/bin/activate
 | `02_orin_pyproject_diff.md` | upstream vs orin/pyproject.toml 변경 이력 누적 기록 |
 | `03_orin_lerobot_diff.md` | upstream vs orin/lerobot/ 코드 변경 이력 누적 기록 |
 | `99_lerobot_upstream_Tracking.md` | lerobot 동기화 이력 누적 기록 |
+
+### `logs/`
+
+| 파일 | 역할 |
+|---|---|
+| `todo.md` | Orin 환경 정비/검증 작업 로그 및 진행 상태 기록 |
 
 ### `others/`
 

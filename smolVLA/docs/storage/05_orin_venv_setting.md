@@ -32,7 +32,7 @@ conda env 방식은 폐기. `setup_env.sh`가 생성하는 venv를 사용.
 |---|---|---|
 | lerobot (smolVLA orin/) | editable | `~/smolvla/` — `[smolvla,hardware,feetech]` extras |
 | torch | `2.5.0a0+872d972e41` | NVIDIA JP 6.0 nv24.08 wheel, CUDA avail: True (12.6) |
-| torchvision | 미설치 | `_TokenizerOnlyProcessor` 우회 구현으로 회피 중. 추론 전용 환경이므로 현재 설치 보류. 업그레이드 경로: PyTorch 2.5 → torchvision 0.20 / PyTorch 2.7 → torchvision 0.22 (모두 Seeed SharePoint 커뮤니티 빌드) |
+| torchvision | `0.20.0a0+afc54f7` | Seeed SharePoint wheel 수동 설치 완료 (`--no-deps --force-reinstall`), `AutoProcessor.from_pretrained()` 복원 완료 |
 | numpy | `<2.0.0` | torch 2.5.0a0 NumPy 1.x ABI 요건으로 고정 |
 | transformers | lerobot deps 포함 | smolVLA extras 설치 시 자동 설치 |
 | accelerate | lerobot deps 포함 | |
@@ -130,13 +130,19 @@ torch 2.5.0a0 설치 시 `nvidia-cusparselt-cu12` pip 패키지가 함께 들어
 2. `sudo dpkg -i libcusparselt*.deb && sudo ldconfig`
 3. 이후 `setup_env.sh` 재실행 시 §0이 이미 설치됨을 감지하고 자동 스킵
 
-**폴백 — Option A (자동화, CI/배포 시):**
+**Option A 상태 (2026-04-23):**
 
-`setup_env.sh §0`에서 `ldconfig -p`로 시스템 설치 여부 감지. 미설치 시 PyTorch repo의 `install_cusparselt.sh` 스크립트를 자동 실행 → `sudo ldconfig`.
+CUDA 12.6 환경에서는 `install_cusparselt.sh` 버전 분기(12.1~12.4)와 맞지 않아,
+`setup_env.sh`는 Option A 자동 실행을 하지 않고 스킵한다.
 
 **LD_LIBRARY_PATH 패치:**
 
 cusparselt 시스템 설치가 감지되면 패치 불필요. 시스템 미설치 상태인 경우에만 pip 번들 경로(`{venv}/lib/python3.10/site-packages/nvidia/cusparselt/lib`)를 venv activate에 임시 추가하며 경고 메시지 출력.
+
+현재 venv 상태 (2026-04-23):
+- LD_LIBRARY_PATH fallback 적용 상태에서 CUDA 텐서 연산 검증 통과
+- `ldconfig -p | grep -i cusparseLt` 기준 시스템 등록은 미확인
+- Option B(deb 설치)는 보류, 관련 에러 재발 시 재시도
 
 ### nvcc PATH
 
@@ -161,3 +167,7 @@ torch.backends.cudnn.version()          # cuDNN 확인
 ```
 
 검증 실패 시 `sys.exit(1)` + `set -e`로 스크립트 전체 중단.
+
+추가 검증 (2026-04-23):
+- `torchvision.ops.nms` CUDA 실행 성공 (`0.20.0a0+afc54f7`)
+- `.venv/bin/python` 직접 실행으로 venv activate 없이도 CUDA 텐서 연산 성공
