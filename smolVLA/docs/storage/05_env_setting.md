@@ -35,7 +35,7 @@ conda env 방식은 폐기. `setup_env.sh`가 생성하는 venv를 사용.
 ### 배경
 
 - JetPack 6.2부터 NVIDIA 공식 standalone wheel 공급 중단
-- `docs/reference/Install-PyTorch-Jetson-Platform-Release-Notes.md` Compatibility Matrix 확인 결과, JP 6.2 전체 항목의 wheel 컬럼 `-` (공급 없음)
+- `docs/reference/nvidia_official/Install-PyTorch-Jetson-Platform-Release-Notes.md` Compatibility Matrix 확인 결과, JP 6.2 전체 항목의 wheel 컬럼 `-` (공급 없음)
 
 ### 시도한 경로와 실패 사유
 
@@ -82,4 +82,4 @@ torch 2.5.0a0 pip 설치 시 `nvidia-cusparselt-cu12` 패키지가 함께 설치
 **근거 자료:**
 - [NVIDIA Developer Forums — Installing Pytorch & Torchvision for JetPack 6.2 and CUDA 12.6](https://forums.developer.nvidia.com/t/installing-pytorch-torchvision-for-jetpack-6-2-and-cuda-12-6/346074)
 - [NVIDIA Developer Forums — PyTorch for Jetson (공식 스레드)](https://forums.developer.nvidia.com/t/pytorch-for-jetson/72048)
-- `docs/reference/Install-PyTorch-Jetson-Platform-Release-Notes.md`
+- `docs/reference/nvidia_official/Install-PyTorch-Jetson-Platform-Release-Notes.md`

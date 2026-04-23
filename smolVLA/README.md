@@ -14,12 +14,14 @@ smolVLA/
 ├── .github/
 │   └── copilot-instructions.md         # GitHub Copilot 컨텍스트
 ├── docs/
-│   ├── repository/                      # lerobot 코드 구조 분석 문서
+│   ├── lerobot_study/                   # lerobot 코드 구조 분석 문서
 │   ├── reference/                       # 외부 참조 문서 + 읽기 전용 서브모듈
 │   │   ├── lerobot/                     # HuggingFace lerobot upstream submodule
 │   │   ├── reComputer-Jetson-for-Beginners/ # Seeed Jetson beginner reference submodule
-│   │   ├── reference.md
-│   │   └── so101.md
+│   │   ├── nvidia_official/             # NVIDIA PyTorch on Jetson 설치 공식 문서 (md+pdf)
+│   │   ├── seeedwiki/                   # Seeed Wiki 문서 한국어 번역 보관
+│   │   │   └── seeedwiki_so101.md       # SO-ARM100/101 + LeRobot 튜토리얼 번역
+│   │   └── reference_link.md
 │   └── storage/                         # 환경/장비 기록 문서
 │       ├── 01_smolvla_arm_env_requirements.md   # 요구사항 + 문서 네비게이션
 │       ├── 02_hardware.md
@@ -32,12 +34,15 @@ smolVLA/
 │       │   └── *_snapshot_*.txt
 │       └── lerobot_upstream_check/      # lerobot upstream 추적 및 충돌 점검
 │           ├── 01_compatibility_check.md
+│           ├── 02_orin_pyproject_diff.md
+│           ├── 03_orin_lerobot_diff.md
 │           ├── 99_lerobot_upstream_Tracking.md
 │           └── check_update_diff.sh
 └── orin/                                # Jetson Orin 배포 패키지
     ├── pyproject.toml                   # Orin용 (torch>=2.5, Python>=3.10, smolvla extras)
     ├── lerobot/                         # curated 추론 필수 모듈
-    │   ├── cameras/{opencv,realsense,zmq}
+    │   ├── __init__.py, __version__.py, types.py
+    │   ├── cameras/{opencv,realsense,zmq}/
     │   ├── configs/
     │   ├── envs/
     │   ├── model/
@@ -46,11 +51,12 @@ smolVLA/
     │   ├── policies/{smolvla,rtc}/
     │   ├── processor/
     │   ├── robots/so_follower/
-    │   ├── scripts/{lerobot_eval,lerobot_teleoperate}
+    │   ├── scripts/                     # lerobot_eval / lerobot_teleoperate / lerobot_train 등 18개 스크립트
     │   ├── teleoperators/so_leader/
     │   └── utils/
     ├── examples/
     │   └── tutorial/smolvla/
+    │       ├── smoke_test.py
     │       └── using_smolvla_example.py
     └── scripts/
         └── setup_env.sh                 # Orin에서 실행 — venv + pip install
@@ -118,6 +124,8 @@ source ~/smolvla/.venv/bin/activate
 |---|---|
 | `docs/reference/lerobot/` | upstream submodule (수정 금지) |
 | `docs/reference/reComputer-Jetson-for-Beginners/` | Seeed Jetson beginner reference submodule |
+| `docs/reference/nvidia_official/` | NVIDIA PyTorch on Jetson 설치 공식 문서 (md + pdf) |
+| `docs/lerobot_study/` | lerobot 코드 구조 분석 노트 (`lerobot_repo_overview`, `lerobot_root_structure`, `lerobot_src_structure`) |
 | `orin/` | Orin 배포 패키지 — curated lerobot + 예제 + 설치 스크립트 |
 | `deploy_orin.sh` | orin/ → Orin rsync (devPC에서 실행) |
 | `docs/storage/` | 환경/장비 실측 기록 문서 |

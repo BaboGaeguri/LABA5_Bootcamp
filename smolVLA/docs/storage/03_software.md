@@ -6,7 +6,7 @@
 ## 1) 기본 개발 환경
 
 - 개발 기준 OS: `Ubuntu 22.04`
-- Python 기준: `3.12`
+- Python 기준: `3.10` (Orin JP 6.2.2 시스템 Python 및 cp310 wheel 요건)
 - 사용 의존성 그룹:
   - `smolvla`
   - `training`
@@ -52,7 +52,7 @@ JetPack 판별 근거:
 | lerobot | 설치됨 | `0.4.4` | editable project location: `/home/babogaeguri/lerobot` |
 | torch | 설치됨 | `2.7.1` |  |
 | torchvision | 설치됨 | `0.22.1` |  |
-| transformers | 미설치 | - | `pip show`에서 not found |
+| transformers | 미설치 | - | devPC에서는 설치하지 않음 (실행은 Orin) |
 | accelerate | 설치됨 | `1.13.0` |  |
 | opencv-python-headless | 설치됨 | `4.12.0.88` |  |
 | feetech-servo-sdk | 설치됨 | `1.0.0` |  |
@@ -60,8 +60,8 @@ JetPack 판별 근거:
 점검 메모:
 - 같은 날 `base` 환경(`Python 3.13.12`)에서는 핵심 패키지들이 미설치로 확인됨.
 - 실제 텔레옵/실행에 사용된 환경은 `lerobot` conda env로 판단됨.
-- 현재 실행 환경 Python은 `3.10.20`이며, 문서 상 요구사항(`3.12`)과 불일치가 있어 추후 정리 필요.
-- `transformers`가 `pip show` 기준 미설치 상태이므로 smolVLA 실행 전 재확인/설치 필요.
+- 현재 실행 환경 Python은 `3.10.20`으로 문서 기준(`3.10`)과 일치.
+- devPC에는 smolVLA/transformers 등을 설치하지 않음 (실행은 Orin에서 수행). devPC는 코드 정리·문서화·배포 관리 전용.
 
 ## 5) DGX Spark 실측 소프트웨어 정보
 

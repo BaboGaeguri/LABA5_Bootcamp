@@ -58,21 +58,28 @@
 
 ---
 
-## 5) SO-ARM 핵심 부품 (BOM 기준)
+## 5) SO-ARM 핵심 부품 (BOM 기준) — **Arm Kit Pro**
 
+- 키트 등급: **Arm Kit Pro** (팔로워 12V 구성)
 - 모터 계열: `Feetech STS3215`
 
 | 구성 | 상세 모델 | 수량 |
 |---|---|---|
-| SO-101 follower (팔 1개) | `STS3215 7.4V, 1/345 gear (C001)` | x6 |
-| SO-101 leader (팔 1개) | `STS3215 7.4V, 1/345 (C001)` | x1 |
+| SO-101 follower (팔 1개) | `STS3215 12V, 1/345 gear (C018 또는 C047)` | x6 |
 | SO-101 leader (팔 1개) | `STS3215 7.4V, 1/191 (C044)` | x2 |
+| SO-101 leader (팔 1개) | `STS3215 7.4V, 1/345 (C001)` | x1 |
 | SO-101 leader (팔 1개) | `STS3215 7.4V, 1/147 (C046)` | x3 |
 
-leader + follower(현재 보유 1쌍) 합계:
-- `C001 x7`, `C044 x2`, `C046 x3`
+> 팔로워 F1–F6은 Arm Kit Pro 기준 12V 모터(C018 또는 C047) 중 택일. 리더 L1–L6은 7.4V 모터 혼합 구성(C044 x2 / C001 x1 / C046 x3).
 
-## 6) 모터 드라이버 보드 / 케이블
+leader + follower(현재 보유 1쌍) 합계:
+- `C018 또는 C047 x6` (follower, 12V)
+- `C001 x1`, `C044 x2`, `C046 x3` (leader, 7.4V)
+
+- 전원 공급:
+  - **Follower arm**: **DC 12V** (Arm Kit Pro)
+  - **Leader arm**: **DC 5V**
+  - 커넥터: `5.5mm × 2.1mm DC 잭`
 
 - 모터 드라이버(컨트롤 보드):
   - `Serial Bus Servo Driver Board, for ST/SC Series Serial Bus Servos`
@@ -85,7 +92,7 @@ leader + follower(현재 보유 1쌍) 합계:
   - 상품 예시: `etguuds USB A to USB C Cable 6.6ft, 2-Pack, 3A`
   - ASIN 예시: `B0B8NWLLW2`
 
-## 7) 로봇 구성 수량
+## 6) 로봇 구성 수량
 
 - Follower arm: 1대
 - Leader arm: 1대
