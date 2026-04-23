@@ -11,6 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from __future__ import annotations
+
 import abc
 import builtins
 import dataclasses
@@ -19,7 +21,13 @@ import os
 from importlib.resources import files
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import TypedDict, TypeVar, Unpack
+import sys
+from typing import TYPE_CHECKING, TypedDict, TypeVar
+
+if sys.version_info >= (3, 11):
+    from typing import Unpack
+else:
+    from typing_extensions import Unpack
 
 import packaging
 import safetensors
@@ -30,8 +38,10 @@ from safetensors.torch import load_model as load_model_as_safetensor, save_model
 from torch import Tensor, nn
 
 from lerobot.configs import PreTrainedConfig
-from lerobot.configs.train import TrainPipelineConfig
 from lerobot.utils.hub import HubMixin
+
+if TYPE_CHECKING:
+    from lerobot.configs.train import TrainPipelineConfig
 
 from .utils import log_model_loading_keys
 

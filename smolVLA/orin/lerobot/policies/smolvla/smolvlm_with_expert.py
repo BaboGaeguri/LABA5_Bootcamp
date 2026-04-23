@@ -26,6 +26,7 @@ if TYPE_CHECKING or _transformers_available:
         AutoModel,
         AutoModelForImageTextToText,
         AutoProcessor,
+        AutoTokenizer,
         SmolVLMForConditionalGeneration,
     )
 else:
@@ -33,7 +34,21 @@ else:
     AutoModel = None
     AutoModelForImageTextToText = None
     AutoProcessor = None
+    AutoTokenizer = None
     SmolVLMForConditionalGeneration = None
+
+
+class _TokenizerOnlyProcessor:
+    """AutoProcessor 대신 tokenizer만 로드하는 최소 래퍼.
+
+    SmolVLMWithExpertModel에서 self.processor는 오직
+    tokenizer.fake_image_token_id / global_image_token_id 접근에만 쓰인다.
+    AutoProcessor는 video_processing_smolvlm을 통해 torchvision을 요구하므로,
+    Orin(torchvision 미지원) 환경에서는 tokenizer만 로드해 우회한다.
+    """
+
+    def __init__(self, model_id: str):
+        self.tokenizer = AutoTokenizer.from_pretrained(model_id)
 
 
 def apply_rope(x, positions, max_wavelength=10_000):
@@ -96,7 +111,7 @@ class SmolVLMWithExpertModel(nn.Module):
         else:
             config = AutoConfig.from_pretrained(model_id)
             self.vlm = SmolVLMForConditionalGeneration(config=config)
-        self.processor = AutoProcessor.from_pretrained(model_id)
+        self.processor = _TokenizerOnlyProcessor(model_id)
         if num_vlm_layers > 0:
             print(f"Reducing the number of VLM layers to {num_vlm_layers} ...")
             self.get_vlm_model().text_model.layers = self.get_vlm_model().text_model.layers[:num_vlm_layers]

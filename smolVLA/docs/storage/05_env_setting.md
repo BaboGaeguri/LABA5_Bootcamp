@@ -1,45 +1,85 @@
-## 05. Environment Setting Notes
+# smolVLA Orin 환경 세팅 기록
 
-이 문서는 `lerobot/pyproject.toml`(upstream)과 `orin/pyproject.toml`(Orin 배포용)의 의존성 정책 차이를 정리한다.
+> 작성일: 2026-04-21 (최초) / 2026-04-23 (업데이트)
+> 목적: lerobot을 Orin에서 실행하기 위한 환경 구성 과정과 현재 상태를 기록
 
-### 목적
+## 1) 개요
 
-- `lerobot/pyproject.toml`: upstream 기본 정책. 다양한 기능/플랫폼을 포괄하는 범용 의존성 집합.
-- `orin/pyproject.toml`: Jetson Orin 실행 안정성을 우선한 배포 정책. 실제 추론/하드웨어 제어에 필요한 범위로 축소.
+- 실행 대상: Orin (JetPack 6.2.2, L4T R36.5.0, CUDA 12.6)
+- 환경 관리 방식: venv (`~/smolvla/.venv`)
+- 소프트웨어 실측 현황 근거: `docs/storage/03_software.md`
 
-### 핵심 차이
+## 2) venv 환경 구성 (2026-04-23 확정)
 
-| 항목 | `lerobot/pyproject.toml` | `orin/pyproject.toml` | 운영상 의미 |
-|---|---|---|---|
-| Python 기준 | `>=3.12` | `>=3.10` | Orin 기본 Python(3.10) 환경을 직접 지원하기 위한 차이 |
-| PyTorch 범위 | `torch>=2.7,<2.11.0` | `torch>=2.5` | Orin에서는 JetPack/NVIDIA wheel 호환성이 우선 |
-| TorchVision 범위 | `torchvision>=0.22.0,<0.26.0` | `torchvision>=0.20.0` | ARM64/JetPack 조합에서 설치 가능성 확보 |
-| optional extras 범위 | dataset/training/sim/dev 포함 폭넓음 | `smolvla`, `hardware`, `feetech`, `zmq` 중심 | Orin 실행에 필요한 기능 위주로 최소화 |
-| 플랫폼 예외 처리 | 일부 패키지에 플랫폼 marker 포함(예: 특정 환경에서 `torchcodec` 제외) | marker보다 curated 의존성 축소를 우선 | 설치 실패 가능성이 높은 경로를 사전 차단 |
+conda env 방식은 폐기. `setup_env.sh`가 생성하는 venv를 사용.
 
-### 왜 분리 관리가 필요한가
+- venv 경로: `~/smolvla/.venv`
+- Python 버전: `3.10` (JetPack 6.2.2 시스템 Python)
+- 설치 스크립트: `~/smolvla/scripts/setup_env.sh`
 
-- Orin은 `aarch64`(ARM64) + JetPack(CUDA/cuDNN 묶음) 환경이므로, 개발 PC(`x86_64`) 기준 의존성을 그대로 적용하면 설치/실행 실패 가능성이 높다.
-- upstream의 범용 의존성은 기능 커버리지가 넓은 대신 Orin 현장 실행에는 과할 수 있다.
-- `orin/pyproject.toml`은 "실행 가능성"과 "재현성"을 우선해 의존성을 조정한 파일이다.
+**실측 설치 패키지 (2026-04-23 기준):**
 
-### 운영 원칙
+| 패키지 | 버전 | 비고 |
+|---|---|---|
+| lerobot (smolVLA orin/) | editable | `~/smolvla/` — `[smolvla,hardware,feetech]` extras |
+| torch | `2.5.0a0+872d972e41` | NVIDIA JP 6.0 nv24.08 wheel, CUDA avail: True (12.6) |
+| torchvision | 미설치 | Orin 호환 버전 없음 (smolVLA 추론 경로에서 미사용) |
+| numpy | `<2.0.0` | torch 2.5.0a0 NumPy 1.x ABI 요건으로 고정 |
+| transformers | lerobot deps 포함 | smolVLA extras 설치 시 자동 설치 |
+| accelerate | lerobot deps 포함 | |
+| opencv-python-headless | lerobot deps 포함 | |
+| feetech-servo-sdk | lerobot deps 포함 | |
 
-- Orin 배포/실행은 `orin/pyproject.toml`을 기준으로 본다.
-- upstream 동기화 시 코드는 `sync_lerobot.sh`로 맞추되, 의존성 정책은 Orin 기준을 유지하며 검증한다.
-- 의존성 이슈가 발생하면 먼저 "upstream 범위 문제"인지 "Orin 정책 문제"인지 분리해서 진단한다.
+## 3) PyTorch 설치 방식
 
-### Upstream Tracking Log
+### 배경
 
-upstream 변화를 점검할 때 아래 항목을 누적 기록한다.
+- JetPack 6.2부터 NVIDIA 공식 standalone wheel 공급 중단
+- `docs/reference/Install-PyTorch-Jetson-Platform-Release-Notes.md` Compatibility Matrix 확인 결과, JP 6.2 전체 항목의 wheel 컬럼 `-` (공급 없음)
 
-| Date (KST) | lerobot commit | Describe | Recent cadence (30/90/180d) | Impact note | Action |
-|---|---|---|---|---|---|
-| 2026-04-22 | `ba27aab79c731a6b503b2dbdd4c601e78e285048` | `v0.5.1-42-gba27aab7` | `70 / 185 / 314` | upstream 변경 빈도 높음. Orin 의존성 drift 리스크 존재 | `orin/pyproject.toml` 기준 유지, 다음 동기화 시 설치/실행 재검증 |
+### 시도한 경로와 실패 사유
 
-#### Snapshot Notes (2026-04-22)
+**1차 시도: Jetson AI Lab PyPI 인덱스 (`pypi.jetson-ai-lab.io/jp6/cu126`)**
 
-- Latest commit subject: `fix(robotwin): pin compatible curobo in benchmark image (#3427)`
-- Current smolVLA pointer state: `-ba27aab79c731a6b503b2dbdd4c601e78e285048 lerobot`
-- 해석: `-` 접두는 submodule이 현재 워킹트리에서 미초기화/불일치 상태일 수 있음을 의미하므로, 실제 동기화 작업 전 상태 확인이 필요하다.
+NVIDIA 엔지니어(Dusty Franklin)가 관리하는 준공식 인덱스.
 
+| 버전 | 실패 사유 |
+|---|---|
+| torch 2.11.0+cu130 | CUDA 13.0 빌드 — Orin CUDA 12.6 드라이버와 불일치, `CUDA avail: False` |
+| torch 2.8.0 ~ 2.10.0 | `libcudss.so.0` 의존성 — JP 6.2.2에 libcudss 미설치, apt로도 설치 불가 |
+
+**2차 시도: NVIDIA JP 6.1 공식 wheel (`nv24.09`)**
+
+URL 404 — `v61` 디렉토리에는 `nv24.08` wheel만 존재, `nv24.09`는 제공 안 됨.
+
+### 확정 설치 방식: NVIDIA JP 6.0 공식 redist wheel (2026-04-23)
+
+`v61` 디렉토리의 `nv24.08` wheel이 JP 6.2.2에서도 정상 동작.
+
+**wheel 정보:**
+
+| 항목 | 값 |
+|---|---|
+| torch 버전 | `2.5.0a0+872d972e41` |
+| 빌드 태그 | `nv24.08.17622132` |
+| Python | cp310 |
+| arch | aarch64 |
+| CUDA avail | True (12.6) |
+
+**설치 순서 (`setup_env.sh` 기준):**
+
+1. lerobot (orin/) editable 먼저 설치 — pip가 CPU-only torch를 덮어쓰지 못하도록
+2. torch wheel 설치 (`--force-reinstall --no-deps`)
+3. numpy `<2` 재고정 (`--force-reinstall`)
+4. venv activate 스크립트에 LD_LIBRARY_PATH 자동 패치
+
+**LD_LIBRARY_PATH 패치 이유:**
+
+torch 2.5.0a0 pip 설치 시 `nvidia-cusparselt-cu12` 패키지가 함께 설치되는데, `libcusparseLt.so.0`가 시스템 경로에 없음. venv activate 시 아래 경로를 자동 추가:
+
+`{venv}/lib/python3.10/site-packages/nvidia/cusparselt/lib`
+
+**근거 자료:**
+- [NVIDIA Developer Forums — Installing Pytorch & Torchvision for JetPack 6.2 and CUDA 12.6](https://forums.developer.nvidia.com/t/installing-pytorch-torchvision-for-jetpack-6-2-and-cuda-12-6/346074)
+- [NVIDIA Developer Forums — PyTorch for Jetson (공식 스레드)](https://forums.developer.nvidia.com/t/pytorch-for-jetson/72048)
+- `docs/reference/Install-PyTorch-Jetson-Platform-Release-Notes.md`

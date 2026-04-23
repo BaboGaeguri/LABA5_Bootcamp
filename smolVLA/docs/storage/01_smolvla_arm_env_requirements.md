@@ -3,12 +3,23 @@
 > 기준 문서: `smolVLA/arm_2week_plan.md`  
 > 작성일: 2026-04-21  
 > 목적: smolVLA 작업을 위한 요구사항 정의 문서
+- 개발 환경에 대한 요구사항을 간단히 정리
+- storage 하위 폴더와 파일들의 네비게이션 역할을 하는 파일
 
 ## 1) 문서 역할
 
-- 이 문서: 요구사항(What is required)
-- 하드웨어 실측/보유 현황: `smolVLA/docs/storage/02_hardware.md`
-- 소프트웨어 실측/설정 현황: `smolVLA/docs/storage/03_software.md`
+- 이 문서 (`01`): 요구사항 (What is required)
+- 하드웨어 실측/보유 현황 (`02`): `smolVLA/docs/storage/02_hardware.md`
+- 소프트웨어 실측/설정 현황 (`03`): `smolVLA/docs/storage/03_software.md`
+- 개발 네트워크 설정 (`04`): `smolVLA/docs/storage/04_devnetwork.md`
+- Orin 환경 세팅 기록 (`05`): `smolVLA/docs/storage/05_env_setting.md`
+- 장치 스냅샷 점검: `smolVLA/docs/storage/devices_snapshot/` — `run_snapshots.sh`, `collect_snapshot.sh`
+- lerobot upstream 추적: `smolVLA/docs/storage/lerobot_upstream_check/`
+  - `99_lerobot_upstream_Tracking.md` — 동기화 이력
+  - `01_compatibility_check.md` — 의존성 충돌 점검 기록 (Python 버전, 신규 문법)
+  - `02_orin_pyproject_diff.md` — upstream vs orin/pyproject.toml 변경 이력
+  - `03_orin_lerobot_diff.md` — upstream vs orin/lerobot/ 코드 변경 이력
+  - `check_update_diff.sh` — 점검 스크립트
 
 ## 2) 기본 요구사항
 
@@ -33,18 +44,14 @@
 
 ## 4) 소프트웨어 요구사항
 
-- Python 3.12 환경을 기준으로 한다.
-- lerobot + smolvla + training + feetech 의존성 그룹을 사용한다.
+- Python: Orin 실행 환경 `3.10` / upstream lerobot 기준 `>=3.12` (버전 불일치 존재)
+- 의존성 그룹: Orin 실행 — `smolvla`, `feetech` / 학습/개발 PC — `smolvla`, `training`, `feetech`
 - SSH 원격 접속(Orin)이 가능해야 한다.
 
-## 5) 검증 대상 체크리스트
+> Python 버전 불일치로 인한 구체적인 위험 분석 및 점검 이력:
+> `docs/storage/lerobot_upstream_check/01_compatibility_check.md`
 
-- [ ] Orin에서 smolVLA 추론 실행 확인
-- [ ] SO-ARM 제어 경로(모터/카메라/시리얼) 정상 확인
-- [ ] 데이터 저장 경로(SSD) 정책 확정
-- [ ] 학습 PC <-> Orin 모델 반입/실행 흐름 검증
-
-## 6) 근거 문서
+## 5) 근거 문서
 
 - `docs/source/so101.mdx:20`
 - `docs/source/so101.mdx:33`

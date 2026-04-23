@@ -16,6 +16,7 @@
 
 - 스냅샷 파일: `smolVLA/docs/storage/devices_snapshot/orin_env_snapshot_2026-04-22_0043.txt`
 - OS: `Ubuntu 22.04.5 LTS`
+- JetPack: `6.2.2` (nvidia-jetpack `6.2.2+b24`, L4T `R36.5.0` 기준)
 - L4T: `R36.5.0`
 - 커널: `5.15.185-tegra`
 - CUDA:
@@ -26,12 +27,18 @@
 - GPU 드라이버: `540.5.0`
 - nvpmodel 현재 모드: `25W` (mode id `1`)
 
+JetPack 판별 근거:
+- 장비 식별: `aarch64` + `5.15.185-tegra` 커널로 Jetson Orin 환경 확인.
+- 릴리스 식별: `/etc/nv_tegra_release` 실측값이 `R36 (release), REVISION: 5.0`.
+- 패키지 식별: `nvidia-l4t-core` 및 다수 `nvidia-l4t-*` 패키지가 `36.5.0`으로 설치됨.
+- 해석: L4T `R36.5.0`은 JetPack `6.2.2`와 대응. `apt-cache show nvidia-jetpack` 실측값 `6.2.2+b24`로 확정됨.
+- 참고: `nvidia-jetpack` 메타패키지가 `6.2.2+b24`로 설치 확인됨.
+
 ## 3) 컨테이너/ML 런타임 상태
 
 - Docker 실행 중 컨테이너: 없음 (스냅샷 시점)
-- PyTorch 설치 방식: 미확정
-  - `python3 -c 'import torch ...'` 출력이 스냅샷에 기록되지 않음
-  - 추가 확인 필요: `python3 -m pip show torch`
+- PyTorch: venv에 설치 (`~/smolvla/.venv`) — 시스템 패키지 아님
+  - 설치 방식 및 패키지 버전 상세: `docs/storage/05_env_setting.md`
 
 ## 4) 노트북 의존성 실측 결과 (기록용)
 
@@ -75,7 +82,7 @@
 
 ## 6) 추가 확인 필요 항목
 
-- [ ] PyTorch 설치 방식 확정 — Orin: NVIDIA wheel vs container / DGX: pip 직접 설치 여부
+- [x] PyTorch 설치 방식 확정 — NVIDIA JP 6.0 공식 redist wheel (`nv24.08`, torch `2.5.0a0+872d972e41`). CUDA avail: True (12.6). 상세 기록: `05_env_setting.md` Section 3
 - [ ] DGX cuDNN / TensorRT 설치 필요 여부 확인
 - [ ] 학습 PC(DGX)와 Orin 간 모델 반입/실행 절차 확정
 - [ ] 외장 SSD 사용 시 데이터셋/체크포인트 경로 확정
