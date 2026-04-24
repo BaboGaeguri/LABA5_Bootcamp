@@ -10,11 +10,13 @@
 |---|---|---|
 | [lerobot/](lerobot/) | https://github.com/huggingface/lerobot | HuggingFace lerobot upstream. 수정 금지 — `orin/lerobot/`에서 wrapping/extending |
 | [reComputer-Jetson-for-Beginners/](reComputer-Jetson-for-Beginners/) | https://github.com/Seeed-Projects/reComputer-Jetson-for-Beginners | Seeed Jetson beginner 튜토리얼 모음 |
+| [seeed-lerobot/](seeed-lerobot/) | https://github.com/Seeed-Projects/lerobot | Seeed-Projects 포크 (안정 버전). Seeed 튜토리얼이 권장하는 클론 대상 |
 
 업데이트 방법:
 ```bash
 git submodule update --remote smolVLA/docs/reference/lerobot
 git submodule update --remote smolVLA/docs/reference/reComputer-Jetson-for-Beginners
+git submodule update --remote smolVLA/docs/reference/seeed-lerobot
 ```
 
 ---
