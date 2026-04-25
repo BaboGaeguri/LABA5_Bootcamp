@@ -92,7 +92,39 @@ leader + follower(현재 보유 1쌍) 합계:
   - 상품 예시: `etguuds USB A to USB C Cable 6.6ft, 2-Pack, 3A`
   - ASIN 예시: `B0B8NWLLW2`
 
-## 6) 로봇 구성 수량
+## 6) 카메라 (SO-ARM용)
+
+- 모델: `OV5648 USB Camera Module`
+- 수량: 2대 (SO-ARM 관측용)
+- 구매 사양: 68° 버전 (제품 라인업: 68° / 120° 두 종 존재)
+
+| 항목 | 값 |
+|---|---|
+| 센서 | OV5648 |
+| 렌즈 크기 | 1/4 inch |
+| 픽셀 크기 | 1.4μm × 1.4μm |
+| 최대 유효 화소 | 2592(H) × 1944(V) = 5MP |
+| 출력 포맷 | MJPEG / YUV2 (YUYV) |
+| 지원 해상도·프레임 | 30fps UXGA, 15fps UXGAYUV |
+| S/N 비 | 38dB |
+| 다이내믹 레인지 | 68dB @ 8x gain |
+| 감도 | 600mV/Lux-sec |
+| 최저 조도 | 0.1lux |
+| 셔터 | Electronic Rolling Shutter |
+| 인터페이스 | USB 2.0 High Speed |
+| USB 프로토콜 | USB 2.0 HS/FS |
+| 드라이버리스 | USB Video Class (UVC) |
+| OTG | USB 2.0 OTG |
+| 화각 | 72° (스펙 시트 기준) / 제품 표기 68° — 실물 확인 필요 |
+| 포커스 | Fixed Focus (스펙 시트 기준, 제품명 "Auto Focus"와 불일치 — 실물 확인 필요) |
+| 부가 기능 | Flash Light, Microphone 내장 |
+| 전원 | USB BUS POWER 5P 1.0mm Socket, DC 5V, 140mA |
+| 동작 온도 | -20 ~ 70°C |
+| 보관 온도 | 0 ~ 50°C |
+| 호환 OS | Windows XP/Vista/7/8.1/10, Linux with UVC (≥2.6.26), Android 4.0+ with UVC |
+
+## 7) 로봇 구성 수량
 
 - Follower arm: 1대
 - Leader arm: 1대
+- Camera: 2대
