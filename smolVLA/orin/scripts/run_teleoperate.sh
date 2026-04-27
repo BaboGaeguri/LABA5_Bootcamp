@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Verified serial-to-port mapping from current_task.md
-FOLLOWER_PORT="/dev/ttyACM0"
-LEADER_PORT="/dev/ttyACM1"
+# Confirmed by lerobot-find-port (20260427): follower=serial 5B42138563, leader=serial 5B42138566
+FOLLOWER_PORT="/dev/ttyACM1"
+LEADER_PORT="/dev/ttyACM0"
 FOLLOWER_ID="my_awesome_follower_arm"
 LEADER_ID="my_awesome_leader_arm"
 
