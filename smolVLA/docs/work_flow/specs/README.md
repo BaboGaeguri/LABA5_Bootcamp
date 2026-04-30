@@ -22,12 +22,29 @@ Codex는 current_test.md에만 결과를 기록한다. 스펙 파일은 /complet
 
 ```
 NN_<짧은_설명>.md  (NN = 순번, 예: 01, 02, 03)
-예) 01_teleoptest.md
-    00_template.md  ← 템플릿 (실제 스펙 아님)
+예) 02_<진행중인_스펙>.md  ← 활성 스펙 (specs/ 루트)
+    00_template.md         ← 템플릿 (실제 스펙 아님)
+    history/01_teleoptest.md  ← 완료된 스펙 (specs/history/)
 ```
 
-- 순번이 높을수록 최신. `/handoff-*`가 가장 높은 번호 파일을 자동 선택한다.
+- 순번이 높을수록 최신. `/handoff-*`가 `specs/` 루트에서 가장 높은 번호 파일을 자동 선택한다.
 - 하나의 스펙 파일이 하나의 구현·테스트 사이클에 대응한다.
+- 모든 TODO가 완료된 스펙은 `history/` 로 이동하여 활성 스펙과 분리한다.
+
+## 디렉토리 구조
+
+```
+specs/
+├── README.md
+├── 00_template.md
+├── BACKLOG.md              # 각 스펙의 Backlog 항목을 스펙별로 모아 관리하는 중앙 문서 (스펙 파일 자체에는 Backlog 섹션을 두지 않음)
+├── NN_<진행중>.md          # 활성 스펙 (현재 사이클)
+└── history/
+    └── NN_<완료된_스펙>.md  # 완료된 스펙 보관
+```
+
+> 완료된 스펙의 task/test 단위 히스토리는 `../context/history/NN_<spec명>/` 하위에 모아둔다.
+> `BACKLOG.md` 의 신규 항목 추가·상태 업데이트는 `/complete-task` / `/complete-test` 실행 시 자동 반영된다.
 
 ---
 

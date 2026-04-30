@@ -8,14 +8,15 @@
 
 ```
 work_flow/
-├── specs/      # 에이전트 인계 스펙 (NN_*.md — 순번 접두사)
+├── specs/                  # 에이전트 인계 스펙 (NN_*.md — 순번 접두사)
 │   ├── README.md
 │   ├── 00_template.md
-│   └── history/
-└── context/    # 현재 진행 상태 및 히스토리
+│   └── history/            # 완료된 스펙 보관 (예: 01_teleoptest.md)
+└── context/                # 현재 진행 상태 및 히스토리
     ├── current_task.md
     ├── current_test.md
     └── history/
+        └── NN_<spec명>/    # 스펙별 task/test 히스토리 (예: 01_teleoptest/)
 ```
 
 ## 디렉토리 역할
@@ -45,3 +46,5 @@ specs/YYYYMMDD_*.md  (todo + DOD)
                                                           │
                                               스펙 반영 + history 보관
 ```
+
+> 스펙 완료 시 `specs/NN_*.md` → `specs/history/`, 해당 스펙의 task/test 히스토리는 `context/history/NN_<spec명>/` 하위에 모아둔다.

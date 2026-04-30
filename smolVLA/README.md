@@ -11,8 +11,13 @@ smolVLA/
 ├── README.md
 ├── arm_2week_plan.md                    # 2주 실행 계획 및 마일스톤
 ├── agent_plan.md                        # agent 작업 계획
-├── dev-connect.sh                       # VS Code Remote SSH로 Orin/DGX 동시 연결
-├── deploy_orin.sh                       # devPC → Orin rsync 배포
+├── scripts/                             # devPC 측 운영 스크립트
+│   ├── deploy_orin.sh                   # devPC → Orin rsync 배포 (orin/)
+│   ├── deploy_dgx.sh                    # devPC → DGX rsync 배포 (dgx/ + docs/reference/lerobot/)
+│   ├── sync_ckpt_dgx_to_orin.sh         # DGX 학습 체크포인트 → Orin (devPC 경유 2-hop)
+│   ├── dev-connect.sh                   # VS Code Remote SSH로 Orin/DGX 동시 연결
+│   ├── sync_to_laba5.sh                 # Hylion/BG smolVLA → LABA5_Bootcamp 백업 (Linux/macOS)
+│   └── sync_to_laba5.ps1                # 같은 기능 (Windows)
 ├── .codex                               # Codex 설정
 ├── .github/
 │   └── copilot-instructions.md         # GitHub Copilot 컨텍스트
@@ -24,20 +29,30 @@ smolVLA/
 │       ├── complete-test.md             # 테스트 결과 → 스펙 반영 + history 보관
 │       └── update-docs.md              # navigator 문서 최신화
 ├── docs/
+│   ├── repo_management.md               # Hylion/BG 운영 + 두 컴퓨터 동기화 + LABA5 백업 흐름
 │   ├── work_flow/                       # 업무 과정 전체 기록
 │   │   ├── specs/                       # 에이전트 간 인계 스펙 (NN_*.md)
 │   │   │   ├── README.md
 │   │   │   ├── 00_template.md           # 스펙 파일 템플릿
-│   │   │   ├── 01_teleoptest.md         # (예시) 현재 진행 중인 스펙
-│   │   │   └── history/                 # 완료된 스펙 보관
+│   │   │   ├── BACKLOG.md               # 누적 백로그 (각 스펙의 Backlog 통합)
+│   │   │   ├── 02_dgx_setting.md        # (예시) 현재 진행 중인 스펙
+│   │   │   └── history/                 # 완료된 스펙 보관 (예: 01_teleoptest.md)
 │   │   └── context/                     # 현재 작업 컨텍스트 및 히스토리
 │   │       ├── current_task.md          # 현재 진행 중인 작업 상태
 │   │       ├── current_test.md          # 현재 테스트 상태
 │   │       └── history/                 # 완료된 task/test 히스토리
-│   ├── lerobot_study/                   # lerobot 코드 구조 분석 문서
+│   ├── lerobot_study/                   # lerobot/SmolVLA 학습 노트 (마일스톤 순서 prefix)
+│   │   ├── 00_lerobot_repo_overview.md
+│   │   ├── 01_lerobot_root_structure.md
+│   │   ├── 02_lerobot_src_structure.md
+│   │   ├── 03_smolvla_architecture.md           # TODO-03: SmolVLA 구조 + config 분기
+│   │   ├── 03b_smolvla_milestone_config_guide.md # TODO-03 보조: 마일스톤별 분기 가이드
+│   │   ├── 04_lerobot_dataset_structure.md      # TODO-04: 데이터셋 구조
+│   │   └── 05_hf_model_selection.md             # TODO-05: HF 모델 선택
 │   ├── reference/                       # 외부 참조 문서 + 읽기 전용 서브모듈
 │   │   ├── lerobot/                     # HuggingFace lerobot upstream submodule
 │   │   ├── reComputer-Jetson-for-Beginners/ # Seeed Jetson beginner reference submodule
+│   │   ├── seeed-lerobot/               # Seeed lerobot fork submodule
 │   │   ├── nvidia_official/             # NVIDIA PyTorch on Jetson 설치 공식 문서 (md+pdf)
 │   │   ├── seeedwiki/                   # Seeed Wiki 문서 한국어 번역 보관
 │   │   │   └── seeedwiki_so101.md       # SO-ARM100/101 + LeRobot 튜토리얼 번역
@@ -62,30 +77,37 @@ smolVLA/
 │       │   └── todo.md
 │       └── others/                      # 수동 설치용 사전 빌드 wheel 등 보관
 │           └── torchvision-0.20.0a0+afc54f7-cp310-cp310-linux_aarch64.whl   # Seeed SharePoint JP 6.1&6.2 + PyTorch 2.5 대응
-└── orin/                                # Jetson Orin 배포 패키지
-    ├── pyproject.toml                   # Orin용 (torch>=2.5, Python>=3.10, smolvla extras)
-    ├── lerobot/                         # curated 추론 필수 모듈
-    │   ├── __init__.py, __version__.py, types.py
-    │   ├── cameras/{opencv,realsense,zmq}/
-    │   ├── configs/
-    │   ├── envs/
-    │   ├── model/
-    │   ├── motors/feetech/
-    │   ├── optim/
-    │   ├── policies/{smolvla,rtc}/
-    │   ├── processor/
-    │   ├── robots/so_follower/
-    │   ├── scripts/                     # lerobot_eval / lerobot_teleoperate / lerobot_train 등 18개 스크립트
-    │   ├── teleoperators/so_leader/
-    │   └── utils/
-    ├── calibration/                     # Orin에서 생성된 calibration 파일 보관 (rsync 배포 제외)
-    ├── examples/
-    │   └── tutorial/smolvla/
-    │       ├── smoke_test.py
-    │       └── using_smolvla_example.py
+├── orin/                                # Jetson Orin 배포 패키지 (추론)
+│   ├── pyproject.toml                   # Orin용 (torch>=2.5, Python>=3.10, smolvla extras)
+│   ├── lerobot/                         # curated 추론 필수 모듈
+│   │   ├── __init__.py, __version__.py, types.py
+│   │   ├── cameras/{opencv,realsense,zmq}/
+│   │   ├── configs/
+│   │   ├── envs/
+│   │   ├── model/
+│   │   ├── motors/feetech/
+│   │   ├── optim/
+│   │   ├── policies/{smolvla,rtc}/
+│   │   ├── processor/
+│   │   ├── robots/so_follower/
+│   │   ├── scripts/                     # lerobot_eval / lerobot_teleoperate / lerobot_train 등 18개 스크립트
+│   │   ├── teleoperators/so_leader/
+│   │   └── utils/
+│   ├── calibration/                     # Orin에서 생성된 calibration 파일 보관 (rsync 배포 제외)
+│   ├── examples/
+│   │   └── tutorial/smolvla/
+│   │       ├── smoke_test.py
+│   │       └── using_smolvla_example.py
+│   └── scripts/
+│       ├── run_teleoperate.sh           # SO-ARM calibrate·teleoperate 편의 스크립트
+│       └── setup_env.sh                 # Orin에서 실행 — venv + pip install
+└── dgx/                                 # DGX Spark 학습 환경 (orin/ 과 형제)
+    ├── README.md                        # 운영 체크리스트 + Walking RL 보호 원칙
     └── scripts/
-        ├── run_teleoperate.sh           # SO-ARM calibrate·teleoperate 편의 스크립트
-        └── setup_env.sh                 # Orin에서 실행 — venv + pip install
+        ├── setup_train_env.sh           # venv + PyTorch 2.10.0+cu130 + lerobot editable
+        ├── preflight_check.sh           # 학습 전 OOM/Walking RL 보호 게이트
+        ├── smoke_test.sh                # lerobot-train --steps=1 검증
+        └── save_dummy_checkpoint.sh     # TODO-10b 검증용 dummy 체크포인트 생성
 ```
 
 ---
@@ -115,17 +137,17 @@ git submodule update --remote smolVLA/docs/reference/lerobot
 **3. Orin에 배포**
 
 ```bash
-./smolVLA/deploy_orin.sh
+./smolVLA/scripts/deploy_orin.sh
 ```
 
-`smolVLA/orin/` 전체를 Orin의 `~/smolvla/` 로 rsync 합니다.
+`smolVLA/orin/` 전체를 Orin의 `~/smolvla/orin/` 로 rsync 합니다 (dgx 와 형제 구조).
 
 **4. Orin에서 환경 재설치 (의존성이 바뀐 경우)**
 
 ```bash
 ssh orin
-rm -rf ~/smolvla/.venv
-bash ~/smolvla/scripts/setup_env.sh
+rm -rf ~/smolvla/orin/.hylion_arm
+bash ~/smolvla/orin/scripts/setup_env.sh
 ```
 
 ---
@@ -134,12 +156,12 @@ bash ~/smolvla/scripts/setup_env.sh
 
 ```bash
 # devPC
-./smolVLA/deploy_orin.sh
+./smolVLA/scripts/deploy_orin.sh
 
 # Orin
 ssh orin
-bash ~/smolvla/scripts/setup_env.sh
-source ~/smolvla/.venv/bin/activate
+bash ~/smolvla/orin/scripts/setup_env.sh
+source ~/smolvla/orin/.hylion_arm/bin/activate
 ```
 
 ---
@@ -155,7 +177,13 @@ source ~/smolvla/.venv/bin/activate
 | `.codex` | Codex 설정 파일 |
 | `arm_2week_plan.md` | 2주 실행 계획, 마일스톤 |
 | `agent_plan.md` | agent 작업 계획 |
-| `deploy_orin.sh` | orin/ → Orin rsync (devPC에서 실행) |
+| `scripts/deploy_orin.sh` | orin/ → Orin rsync (devPC에서 실행) |
+| `scripts/deploy_dgx.sh` | dgx/ + docs/reference/lerobot/ → DGX rsync (devPC에서 실행) |
+| `scripts/sync_ckpt_dgx_to_orin.sh` | DGX 학습 체크포인트 → Orin (devPC 경유 2-hop, devPC에서 실행) |
+| `scripts/dev-connect.sh` | VS Code Remote SSH로 Orin/DGX 동시 연결 (devPC에서 실행) |
+| `scripts/sync_to_laba5.sh` | Hylion/BG smolVLA → LABA5_Bootcamp 단방향 백업 (Linux/macOS, 우분투) |
+| `scripts/sync_to_laba5.ps1` | 같은 기능 (Windows) |
+| `docs/repo_management.md` | Hylion 레포 운영 + 두 컴퓨터 동기화 + 메인 머지 흐름 + LABA5 단방향 백업 |
 | `docs/work_flow/` | 업무 과정 전체 기록 — specs + context 통합 관리 |
 | `docs/work_flow/specs/` | 에이전트 간 인계 스펙 (`NN_*.md`) — `/handoff-*`가 읽고, `/complete-*`가 결과 반영 |
 | `docs/work_flow/context/` | 현재 작업 컨텍스트(`current_task.md`, `current_test.md`) 및 날짜별 히스토리 |
@@ -165,9 +193,10 @@ source ~/smolvla/.venv/bin/activate
 | `docs/reference/seeed-lerobot/` | Seeed lerobot fork submodule (수정 금지) |
 | `docs/reference/nvidia_official/` | NVIDIA PyTorch on Jetson 설치 공식 문서 (수정 금지) |
 | `docs/reference/seeedwiki/` | Seeed SO-101 위키 참조 문서 (수정 금지) |
-| `docs/lerobot_study/` | lerobot 코드 구조 분석 노트 (`lerobot_repo_overview`, `lerobot_root_structure`, `lerobot_src_structure`) |
+| `docs/lerobot_study/` | lerobot/SmolVLA 학습 노트 — 마일스톤 순서 prefix (`00_*`~`02_*` 사전 학습, `03_*`~`05_*` 학습 TODO 산출물, `03b_*` 는 동일 마일스톤 보조 문서) |
 | `docs/storage/` | 환경/장비 실측 기록 문서 |
-| `orin/` | Orin 배포 패키지 — curated lerobot + 예제 + 설치 스크립트 |
+| `orin/` | Orin 배포 패키지 — curated lerobot + 예제 + 설치 스크립트 (추론) |
+| `dgx/` | DGX Spark 학습 환경 — venv setup + preflight + smoke test (학습) |
 
 ---
 

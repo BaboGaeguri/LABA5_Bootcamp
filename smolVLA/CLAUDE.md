@@ -53,6 +53,11 @@
 레퍼런스 활용 규칙:
 - 레퍼런스에 동일하거나 유사한 구현이 있으면 반드시 그것을 기반으로 작성합니다.
 - 레퍼런스에 없는 새로운 스크립트·함수·클래스를 만들어야 할 경우, 구현 전에 반드시 사용자에게 설명하고 확인을 받은 뒤 진행합니다.
+
+구현 완료 후 반드시 current_task.md 의 `## 업데이트` 섹션을 채웁니다:
+- `### 변경한 내용` — 변경한 파일과 내용 요약
+- `### 검증 방법 및 결과` — 실행한 검증 명령과 결과
+- `### 실 실행 검증 필요 여부` — prod 환경 추가 검증이 필요하면 명시
 ```
 
 ### `/handoff-test` 완료 시 — 테스트 실행 (레퍼런스 참조 불필요)
@@ -84,18 +89,20 @@
 
 ## Backlog 기록 규칙
 
-스펙 파일 하단에 `## Backlog` 섹션을 유지한다. `/complete-test` 또는 `/complete-task` 실행 중 아래 항목이 발견되면 해당 스펙의 Backlog 테이블에 추가한다:
+Backlog는 **스펙 파일에 두지 않는다**. 모든 Backlog는 `docs/work_flow/specs/BACKLOG.md` 에 스펙별 섹션으로 중앙 관리한다.
+
+`/complete-test` 또는 `/complete-task` 실행 중 아래 항목이 발견되면 `BACKLOG.md` 의 해당 스펙 섹션에 추가한다:
 
 - 현재 워크플로우를 블로킹하지 않지만 나중에 문제가 될 수 있는 잔여 리스크
 - 테스트 중 발견된 설계 개선 필요 사항
 - 당장 처리하지 않고 미루기로 결정한 기술 부채
 
-Backlog 테이블 형식:
+Backlog 테이블 형식 (상태 컬럼 포함):
 
 ```markdown
-| # | 항목 | 발견 출처 | 우선순위 |
-|---|------|-----------|----------|
-| 1 | [항목 설명] | [TODO 번호] | 높음/중간/낮음 |
+| # | 항목 | 발견 출처 | 우선순위 | 상태 |
+|---|------|-----------|----------|------|
+| 1 | [항목 설명] | [TODO 번호] | 높음/중간/낮음 | 미완/완료 |
 ```
 
 ## 스펙 문서 생성 시 필수 참조
@@ -111,8 +118,8 @@ Backlog 테이블 형식:
 **핵심 맥락 (반드시 인지):**
 - 실행/검증은 항상 **Orin** (`laba@ubuntu`) 에서 수행. devPC는 코드 정리/문서화/배포 관리 전용.
 - devPC → Orin 접근: `ssh orin` (IP 기반, `~/.ssh/config` 등록)
-- Orin 코드 경로: `/home/laba/smolvla/` (rsync 배포 기준)
-- Orin venv: `/home/laba/smolvla/.venv` (`~/smolvla/.venv`)
+- Orin 코드 경로: `/home/laba/smolvla/orin/` (rsync 배포 기준 — dgx 와 형제 구조)
+- Orin venv: `/home/laba/smolvla/orin/.hylion_arm` (`~/smolvla/orin/.hylion_arm`) — DGX venv `~/smolvla/dgx/.arm_finetune` 과 격리
 
 ## Current Working Agreements
 
